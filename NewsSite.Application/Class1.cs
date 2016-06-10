@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NewsSite.Domain
+namespace NewsSite.Application
 {
     public class Class1
     {

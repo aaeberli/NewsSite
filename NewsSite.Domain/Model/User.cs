@@ -8,15 +8,15 @@ namespace NewsSite.Domain.Model
     using System.Data.Entity.Spatial;
 
     [Table("User")]
-    public partial class User:BaseEntity
+    public partial class User : BaseEntity
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
             Likes = new HashSet<Like>();
             News = new HashSet<News>();
         }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [Required]
@@ -27,7 +27,7 @@ namespace NewsSite.Domain.Model
         [StringLength(50)]
         public string Password { get; set; }
 
-        public DateTime CreateDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         public int TypeId { get; set; }
 

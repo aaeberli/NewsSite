@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.DataAccess", "News
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.Common", "NewSite.Common\NewsSite.Common.csproj", "{A7301262-265A-4C52-A890-27DD2B92B79B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.Test", "NewsSite.Test\NewsSite.Test.csproj", "{CA3DEAA9-F005-4A8E-82F0-D756232ECB16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.Application", "NewsSite.Application\NewsSite.Application.csproj", "{7030CFCA-3216-46C7-AAF7-F0A9D5A3A973}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{A7301262-265A-4C52-A890-27DD2B92B79B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7301262-265A-4C52-A890-27DD2B92B79B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7301262-265A-4C52-A890-27DD2B92B79B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA3DEAA9-F005-4A8E-82F0-D756232ECB16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3DEAA9-F005-4A8E-82F0-D756232ECB16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA3DEAA9-F005-4A8E-82F0-D756232ECB16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA3DEAA9-F005-4A8E-82F0-D756232ECB16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7030CFCA-3216-46C7-AAF7-F0A9D5A3A973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7030CFCA-3216-46C7-AAF7-F0A9D5A3A973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7030CFCA-3216-46C7-AAF7-F0A9D5A3A973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7030CFCA-3216-46C7-AAF7-F0A9D5A3A973}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

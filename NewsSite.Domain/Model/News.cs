@@ -1,12 +1,13 @@
 namespace NewsSite.Domain.Model
 {
+    using Common.Abstract;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class News
+    public partial class News : BaseEntity
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public News()
@@ -23,9 +24,9 @@ namespace NewsSite.Domain.Model
         [Required]
         public string Body { get; set; }
 
-        public DateTime PublicDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
-        public DateTime UpdateDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
 
         public int AuthorId { get; set; }
 

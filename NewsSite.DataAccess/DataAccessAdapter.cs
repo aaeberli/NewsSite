@@ -9,10 +9,10 @@ namespace NewsSite.DataAccess
 {
     public class DataAccessAdapter : IDataAccessAdapter
     {
-        private NewsSiteDbDataAccess _dbContext;
+        private NewsSiteDbContext _dbContext;
         public DataAccessAdapter()
         {
-            _dbContext = new NewsSiteDbDataAccess();
+            _dbContext = new NewsSiteDbContext();
         }
 
         public IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : BaseEntity

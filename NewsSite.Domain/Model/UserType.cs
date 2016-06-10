@@ -15,7 +15,6 @@ namespace NewsSite.Domain.Model
             Users = new HashSet<User>();
         }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public short Type { get; set; }

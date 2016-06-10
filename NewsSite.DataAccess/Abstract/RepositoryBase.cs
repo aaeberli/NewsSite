@@ -9,7 +9,7 @@ namespace NewsSite.DataAccess.Abstract
 
     public abstract class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
     {
-        private IDataAccessAdapter _dataAccessAdapter;
+        protected IDataAccessAdapter _dataAccessAdapter;
 
         public RepositoryBase(IDataAccessAdapter dataAccessAdapter)
         {

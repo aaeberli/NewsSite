@@ -5,10 +5,10 @@ namespace NewsSite.Domain.Model
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    public partial class NewsSiteDbDataAccess : DbContext
+    public partial class NewsSiteDbContext : DbContext
     {
-        public NewsSiteDbDataAccess()
-            : base("name=NewsSiteDb")
+        public NewsSiteDbContext()
+            : base("name=NewsSiteDB")
         {
         }
 
@@ -60,6 +60,12 @@ namespace NewsSite.Domain.Model
                 .WithRequired(e => e.UserType)
                 .HasForeignKey(e => e.TypeId)
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<News>()
+                .HasMany(e => e.Likes)
+                .WithRequired(e => e.News)
+                .HasForeignKey(e => e.NewsId)
+                .WillCascadeOnDelete(true);
         }
     }
 }
