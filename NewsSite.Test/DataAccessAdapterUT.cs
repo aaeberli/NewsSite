@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OtpManager.Test
+namespace NewsSite.Test
 {
     using NewsSite.Common.Abstract;
     using NewsSite.DataAccess;
@@ -70,15 +70,11 @@ namespace OtpManager.Test
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             string test_title = "test_title";
             string test_body = "test_body";
-            User author = adapter.GetEntities<User>().SingleOrDefault(u => u.Id == userIds.Item1);
-            News news = new News
-            {
-                Title = test_title,
-                Body = test_body,
-                CreatedDate = DateTime.Now,
-               // User = author,
-                AuthorId = userIds.Item1,
-            };
+            News news = adapter.Create<News>();
+            news.Title = test_title;
+            news.Body = test_body;
+            news.CreatedDate = DateTime.Now;
+            news.AuthorId = userIds.Item1;
 
             // Act
             adapter.Add<News>(news);
@@ -132,10 +128,11 @@ namespace OtpManager.Test
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
 
             // Act
-            for (int i = 0; i < news.Likes.Count(); i++)
-            {
-                adapter.Remove(news.Likes.ElementAt(i));
-            }
+            news.Likes.Select(l => adapter.Remove(l));
+            //for (int i = 0; i < news.Likes.Count(); i++)
+            //{
+            //    adapter.Remove(news.Likes.ElementAt(i));
+            //}
             News deletedNews = adapter.Remove(news);
             adapter.SaveChanges();
             IEnumerable<News> newses = adapter.GetEntities<News>();
@@ -154,8 +151,10 @@ namespace OtpManager.Test
             int newsId = CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
-            User liker = adapter.GetEntities<User>().SingleOrDefault(u => u.Id == userIds.Item1);
-            Like like = new Like() { News = news, User = liker, CreatedDate = DateTime.Now };
+            Like like = adapter.Create<Like>();
+            like.CreatedDate = DateTime.Now;
+            like.NewsId = newsId;
+            like.UserId = userIds.Item1;
 
             // Act
             news.Likes.Add(like);
@@ -165,6 +164,8 @@ namespace OtpManager.Test
             // Assert
             Assert.IsNotNull(modifiedNews);
             Assert.IsTrue(modifiedNews.Likes.Count() == 1);
+            Assert.IsNotNull(like.News);
+            Assert.IsNotNull(like.User);
         }
 
 

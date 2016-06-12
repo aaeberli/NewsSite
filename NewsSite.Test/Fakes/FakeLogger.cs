@@ -2,7 +2,7 @@
 using NewsSite.Common.Abstract;
 using System.Diagnostics;
 
-namespace OtpManager.Test
+namespace NewsSite.Test
 {
     internal class FakeLogger : ILogger
     {
