@@ -8,6 +8,7 @@ using NewsSite.DataAccess.Repositories;
 
 namespace NewsSite.Test
 {
+    using ConnStringWrappers;
     using System.Linq;
     using static Utils;
 
@@ -16,6 +17,7 @@ namespace NewsSite.Test
     {
         private UnityContainer container;
         private IRepository<Like> repo;
+        private ITestUtils<string> utils;
 
         [TestInitialize]
         public void TestInitialize()
@@ -24,8 +26,12 @@ namespace NewsSite.Test
             container = new UnityContainer();
 
             container
+                .RegisterType<IConnStringWrapper, IdentityNewsSiteDBWrapper>()
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
-                .RegisterType<IRepository<Like>, LikeRepository>();
+                .RegisterType<IRepository<Like>, LikeRepository>()
+                .RegisterType<ITestUtils<string>, IdentityUtils>();
+
+            utils = container.Resolve<ITestUtils<string>>();
 
             repo = container.Resolve<IRepository<Like>>();
         }
@@ -34,9 +40,9 @@ namespace NewsSite.Test
         public void Test_add_like_to_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
+           utils. CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             Like like = repo.Create();
             like.CreatedDate = DateTime.Now;
@@ -50,7 +56,7 @@ namespace NewsSite.Test
 
             // Assert
             Assert.AreEqual(1, newses.Single(n => n.Id == newsId).Likes.Count());
-            Assert.AreEqual(userIds.Item1, newses.Single(n => n.Id == newsId).Likes.ElementAt(0).User.Id);
+            Assert.AreEqual(userIds.Item1, newses.Single(n => n.Id == newsId).Likes.ElementAt(0).AspNetUser.Id);
 
         }
 
@@ -59,10 +65,10 @@ namespace NewsSite.Test
         public void Test_remove_like_from_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
-            int likeId = AddLike(userIds.Item1, newsId);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item1, newsId);
             Like like = repo.SingleOrDefault(l => l.Id == likeId);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
 

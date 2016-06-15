@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NewsSite.Common.Abstract;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Test
 {
-    internal class Utils
+    internal class BaseUtils
     {
         public static string TestPublisher { get { return "test_publisher"; } }
         public static string TestEmployee { get { return "test_employee"; } }
@@ -19,7 +20,14 @@ namespace NewsSite.Test
         public static string NewsTitle { get { return "test_news_title"; } }
         public static string NewsBody { get { return "test_news_body"; } }
 
-        public static void ExecuteNonQuery(string connString, string cmdText)
+        protected string _connStringName;
+
+        public BaseUtils(IConnStringWrapper wrapper)
+        {
+            _connStringName = wrapper.ConnectionName;
+        }
+
+        public void ExecuteNonQuery(string connString, string cmdText)
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -29,7 +37,7 @@ namespace NewsSite.Test
             }
         }
 
-        public static object ExecuteScalar(string connString, string cmdText)
+        public object ExecuteScalar(string connString, string cmdText)
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -39,9 +47,9 @@ namespace NewsSite.Test
             }
         }
 
-        public static DataTable QueryTable(string cmdText)
+        public DataTable QueryTable(string cmdText)
         {
-            string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
+            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 SqlCommand cmd = new SqlCommand(cmdText, conn);
@@ -52,13 +60,22 @@ namespace NewsSite.Test
                 return ds.Tables[0];
             }
         }
+    }
 
+    internal class Utils : BaseUtils, ITestUtils<int>
+    {
+
+        public Utils(IConnStringWrapper wrapper)
+            :base(wrapper)
+        {
+
+        }
         /// <summary>
         /// Cleans DB for tests
         /// </summary>
-        public static void CleanTables()
+        public virtual void CleanTables()
         {
-            string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
+            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
             string cmdText_clear_like = "DELETE FROM [Like]";
             string cmdText_clear_news = "DELETE FROM [News]";
@@ -73,9 +90,9 @@ namespace NewsSite.Test
         /// <summary>
         /// Create two default userd, one per type
         /// </summary>
-        public static Tuple<int, int> CreateUsers()
+        public virtual Tuple<int, int> CreateUsers()
         {
-            string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
+            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
             string cmdText_restore_userType1 = "INSERT INTO [UserType] ([Type],[Description]) VALUES (1,'Publisher'); SELECT @@IDENTITY;";
             string cmdText_restore_userType2 = "INSERT INTO [UserType] ([Type],[Description]) VALUES (2,'Employee'); SELECT @@IDENTITY;";
@@ -90,17 +107,17 @@ namespace NewsSite.Test
                 );
         }
 
-        public static int CreateSingleNews(int authorId)
+        public virtual int CreateSingleNews(int authorId)
         {
-            string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
+            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
             string cmdText_create_news = $"INSERT INTO [News] ([Title],[Body],[CreatedDate],[AuthorId]) VALUES ('{NewsTitle}','{NewsBody}',GETDATE(),{authorId}); SELECT @@IDENTITY;";
             return Convert.ToInt32(ExecuteScalar(connString, cmdText_create_news));
         }
 
-        public static int AddLike(int userId, int newsId)
+        public virtual int AddLike(int userId, int newsId)
         {
-            string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
+            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
             string cmdText_create_like = $"INSERT INTO [Like] ([UserId],[NewsId],[CreatedDate]) VALUES ({userId},{newsId},GETDATE()); SELECT @@IDENTITY;";
             int likeId = Convert.ToInt32(ExecuteScalar(connString, cmdText_create_like));
@@ -108,37 +125,5 @@ namespace NewsSite.Test
 
         }
 
-
-        ///// <summary>
-        ///// Creates a test user directly in DB
-        ///// </summary>
-        //public static object CreateUser(string userId)
-        //{
-        //    string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
-
-        //    string cmdText_create_user = $"INSERT INTO [User] values ('{userId}'); SELECT @@IDENTITY;";
-        //    return ExecuteScalar(connString, cmdText_create_user);
-        //}
-        //public static object CreateUser()
-        //{
-        //    return CreateUser("test_user");
-        //}
-
-        ///// <summary>
-        ///// Creates an otp for the specified used directly in DB
-        ///// </summary>
-        ///// <returns></returns>
-        //public static void CreateOtp(object id, string password, DateTime? startDate = null)
-        //{
-        //    string connString = ConfigurationManager.ConnectionStrings["NewsSiteDb"].ConnectionString;
-
-        //    string _startDate = startDate != null ? $"'{((DateTime)startDate).ToString("yyyy-MM-dd hh:mm:ss.fff tt")}'" : "GETDATE()";
-        //    string cmdText_create_user = $"INSERT INTO [Otp] ([UserId],[Password],[StartDate]) values ({id},'{password}',{_startDate});";
-        //    ExecuteNonQuery(connString, cmdText_create_user);
-        //}
-        //public static void CreateOtp(object id)
-        //{
-        //    CreateOtp(id, "test_pass", null);
-        //}
     }
 }

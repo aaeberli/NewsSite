@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace NewsSite.Test
 {
+    using ConnStringWrappers;
     using NewsSite.Common.Abstract;
     using NewsSite.DataAccess;
     using NewsSite.DataAccess.Repositories;
@@ -18,7 +19,8 @@ namespace NewsSite.Test
     {
         private UnityContainer container;
         private IRepository<News> repo;
-        private IRepository<User> userRepo;
+        private IRepository<AspNetUser> userRepo;
+        private ITestUtils<string> utils;
 
         [TestInitialize]
         public void TestInitialize()
@@ -27,27 +29,31 @@ namespace NewsSite.Test
             container = new UnityContainer();
 
             container
+                .RegisterType<IConnStringWrapper, IdentityNewsSiteDBWrapper>()
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
                 .RegisterType<IRepository<News>, NewsRepository>()
-                .RegisterType<IRepository<User>, UserRepository>();
+                .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()
+                .RegisterType<ITestUtils<string>, IdentityUtils>();
+
+            utils = container.Resolve<ITestUtils<string>>();
 
             repo = container.Resolve<IRepository<News>>();
-            userRepo = container.Resolve<IRepository<User>>();
+            userRepo = container.Resolve<IRepository<AspNetUser>>();
         }
 
         [TestMethod]
         public void Test_add_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
+           utils. CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
-            User user = adapter.GetEntities<User>().Single(u => u.Id == userIds.Item2);
+            AspNetUser user = adapter.GetEntities<AspNetUser>().Single(u => u.Id == userIds.Item2);
             News news = new News()
             {
                 Title = Utils.NewsTitle,
                 Body = Utils.NewsBody,
-                User = user,
+                AspNetUser = user,
                 CreatedDate = DateTime.Now,
             };
 
@@ -58,8 +64,8 @@ namespace NewsSite.Test
 
             // Assert
             Assert.IsTrue(newses.Count() == 1);
-            Assert.IsNotNull(addedNews.User);
-            Assert.IsTrue(addedNews.User.Id == userIds.Item2);
+            Assert.IsNotNull(addedNews.AspNetUser);
+            Assert.IsTrue(addedNews.AspNetUser.Id == userIds.Item2);
         }
 
 
@@ -68,9 +74,9 @@ namespace NewsSite.Test
         public void Test_remove_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().Single(n => n.Id == newsId);
 
@@ -88,9 +94,9 @@ namespace NewsSite.Test
         public void Test_update_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().Single(n => n.Id == newsId);
             string new_title_piece = "modified";

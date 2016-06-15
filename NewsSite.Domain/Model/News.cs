@@ -7,7 +7,7 @@ namespace NewsSite.Domain.Model
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class News : BaseEntity
+    public partial class News: BaseEntity
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public News()
@@ -28,11 +28,13 @@ namespace NewsSite.Domain.Model
 
         public DateTime? UpdatedDate { get; set; }
 
-        public int AuthorId { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string AuthorId { get; set; }
+
+        public virtual AspNetUser AspNetUser { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Like> Likes { get; set; }
-
-        public virtual User User { get; set; }
     }
 }

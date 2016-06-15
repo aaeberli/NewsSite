@@ -6,45 +6,51 @@ using System.Linq;
 
 namespace NewsSite.Test
 {
+    using ConnStringWrappers;
     using NewsSite.Common.Abstract;
     using NewsSite.DataAccess;
     using NewsSite.Domain.Model;
-    using static Utils;
 
     [TestClass]
     public class DataAccessAdapterUT
     {
         private UnityContainer container;
+        //private ITestUtils<int> utils;
+        private ITestUtils<string> utils;
 
         [TestInitialize]
         public void TestInitialize()
         {
             AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
             container = new UnityContainer();
-
+            
             container
-                .RegisterType<IDataAccessAdapter, DataAccessAdapter>();
+                .RegisterType<IDataAccessAdapter, DataAccessAdapter>()
+                .RegisterType<IConnStringWrapper, IdentityNewsSiteDBWrapper>()
+                .RegisterType<ITestUtils<string>, IdentityUtils>();
+
+            utils = container.Resolve<ITestUtils<string>>();
         }
 
         [TestMethod]
         public void Test_clean_db()
         {
-            CleanTables();
+            utils.CleanTables();
         }
 
         [TestMethod]
         public void Test_setup_db()
         {
-            CreateUsers();
+            utils.CreateUsers();
         }
 
         [TestMethod]
         public void Test_create_single_news_db()
         {
             // Arrange
-            CleanTables();
+            utils.CleanTables();
             // Act
-            int newsId = CreateSingleNews(CreateUsers().Item1);
+            int newsId = utils.CreateSingleNews(utils.CreateUsers().Item1);
             // Assert
             Assert.IsTrue(newsId > 0);
         }
@@ -53,9 +59,9 @@ namespace NewsSite.Test
         public void Test_create_like_db()
         {
             // Arrange
-            CleanTables();
-            int userId = CreateUsers().Item1;
-            int likeId = AddLike(userId, CreateSingleNews(userId));
+            utils.CleanTables();
+            string userId = utils.CreateUsers().Item1;
+            int likeId = utils.AddLike(userId, utils.CreateSingleNews(userId));
             // Act
             // Assert
             Assert.IsTrue(likeId > 0);
@@ -65,8 +71,8 @@ namespace NewsSite.Test
         public void Test_dataAdapter_create_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             string test_title = "test_title";
             string test_body = "test_body";
@@ -84,8 +90,7 @@ namespace NewsSite.Test
 
             // Assert
             Assert.IsTrue(newsList.Count == 1);
-            Assert.IsNotNull(createdNews.User);
-            Assert.IsTrue(createdNews.User.UserName == Utils.TestPublisher);
+            Assert.IsNotNull(createdNews.AspNetUser);
             Assert.IsTrue(createdNews.AuthorId == userIds.Item1);
             Assert.IsTrue(createdNews.Likes.Count() == 0);
         }
@@ -94,9 +99,9 @@ namespace NewsSite.Test
         public void Test_dataAdapter_update_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
             string new_title_piece = "modified";
@@ -120,10 +125,10 @@ namespace NewsSite.Test
         public void Test_dataAdapter_delete_news()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
-            AddLike(userIds.Item2, newsId);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
+            utils.AddLike(userIds.Item2, newsId);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
 
@@ -146,9 +151,9 @@ namespace NewsSite.Test
         public void Test_dataAdapter_add_like()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
             Like like = adapter.Create<Like>();
@@ -165,7 +170,7 @@ namespace NewsSite.Test
             Assert.IsNotNull(modifiedNews);
             Assert.IsTrue(modifiedNews.Likes.Count() == 1);
             Assert.IsNotNull(like.News);
-            Assert.IsNotNull(like.User);
+            Assert.IsNotNull(like.AspNetUser);
         }
 
 
@@ -173,10 +178,10 @@ namespace NewsSite.Test
         public void Test_dataAdapter_remove_like()
         {
             // Arrange
-            CleanTables();
-            Tuple<int, int> userIds = CreateUsers();
-            int newsId = CreateSingleNews(userIds.Item2);
-            int likeId = AddLike(userIds.Item1, newsId);
+            utils.CleanTables();
+            Tuple<string, string> userIds = utils.CreateUsers();
+            int newsId = utils.CreateSingleNews(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item1, newsId);
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             News news = adapter.GetEntities<News>().SingleOrDefault(n => n.Id == newsId);
             Like like = news.Likes.Single(l => l.Id == likeId);

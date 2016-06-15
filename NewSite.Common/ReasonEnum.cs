@@ -10,12 +10,10 @@ namespace NewsSite.Common
     {
         Generic,
         Error,
-        ElementValidation,
-        ElementDuplication,
-        ElementPresence,
-        UserIdLength,
-        ElementExpired,
-        WrongPassword,
-        WrongUser,
+        MaxLikes,
+        NoUSer,
+        NoNews,
+        NoPublisher,
+        EmptyTitle,
     }
 }

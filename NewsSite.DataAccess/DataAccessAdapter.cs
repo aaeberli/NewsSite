@@ -4,15 +4,17 @@ using System;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
 using NewsSite.Domain.Model;
+using System.Data.Entity.Validation;
 
 namespace NewsSite.DataAccess
 {
     public class DataAccessAdapter : IDataAccessAdapter
     {
         private NewsSiteDbContext _dbContext;
-        public DataAccessAdapter()
+        public DataAccessAdapter(IConnStringWrapper connStr)
         {
-            _dbContext = new NewsSiteDbContext();
+            if (connStr == null) throw new NullReferenceException("IConnStringWrapper must be initialized");
+            _dbContext = new NewsSiteDbContext(connStr.ConnectionName);
         }
 
         public IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : BaseEntity
@@ -49,6 +51,11 @@ namespace NewsSite.DataAccess
             try
             {
                 return _dbContext.SaveChanges();
+            }
+            catch (DbEntityValidationException ex)
+            {
+                _UndoChanges();
+                throw ex;
             }
             catch (Exception ex)
             {

@@ -13,5 +13,10 @@ namespace NewsSite.Common
             list.Add(item);
             return list;
         }
+
+        public static bool IsNullOrEmptyOrWhiteSpace(this string s)
+        {
+            return string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s);
+        }
     }
 }

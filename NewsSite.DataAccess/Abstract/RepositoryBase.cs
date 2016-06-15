@@ -13,8 +13,8 @@ namespace NewsSite.DataAccess.Abstract
 
         public RepositoryBase(IDataAccessAdapter dataAccessAdapter)
         {
+            if (dataAccessAdapter == null) throw new NullReferenceException("IDataAccessAdapter must be initialized");
             _dataAccessAdapter = dataAccessAdapter;
-            if (_dataAccessAdapter == null) throw new NullReferenceException("Data Access Adapter must be initialized");
         }
 
         public TEntity Create()
