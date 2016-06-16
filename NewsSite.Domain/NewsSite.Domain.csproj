@@ -73,6 +73,7 @@
     <Compile Include="Model\AspNetUserLogin.cs" />
     <Compile Include="Model\Like.cs" />
     <Compile Include="Model\News.cs" />
+    <Compile Include="Model\NewsStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

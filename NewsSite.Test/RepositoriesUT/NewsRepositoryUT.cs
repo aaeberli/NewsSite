@@ -45,7 +45,7 @@ namespace NewsSite.Test
         public void Test_add_news()
         {
             // Arrange
-           utils. CleanTables();
+            utils.CleanTables();
             Tuple<string, string> userIds = utils.CreateUsers();
             IDataAccessAdapter adapter = container.Resolve<IDataAccessAdapter>();
             AspNetUser user = adapter.GetEntities<AspNetUser>().Single(u => u.Id == userIds.Item2);

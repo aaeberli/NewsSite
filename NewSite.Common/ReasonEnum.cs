@@ -15,5 +15,10 @@ namespace NewsSite.Common
         NoNews,
         NoPublisher,
         EmptyTitle,
+        NoLike,
+        WrongUser,
+        WrongNews,
+        AlreadyLiked,
+        EmptyBody,
     }
 }

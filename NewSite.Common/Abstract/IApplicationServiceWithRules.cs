@@ -13,5 +13,7 @@ namespace NewsSite.Common.Abstract
         void AddRule(TRule applicationRule);
 
         void ResetRules();
+
+        bool GetRulesStatus();
     }
 }
