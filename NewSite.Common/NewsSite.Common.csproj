@@ -44,9 +44,8 @@
     <Compile Include="Abstract\IApplicationServiceWithRules.cs" />
     <Compile Include="Abstract\IDataAccessAdapter.cs" />
     <Compile Include="Abstract\ILogger.cs" />
-    <Compile Include="Abstract\IOtpGenerator.cs" />
+    <Compile Include="Abstract\IMapperAdapter.cs" />
     <Compile Include="Abstract\IRepository.cs" />
-    <Compile Include="Abstract\IRules.cs" />
     <Compile Include="ApplicationRule.cs" />
     <Compile Include="Abstract\IConnStringWrapper.cs" />
     <Compile Include="Extensions.cs" />

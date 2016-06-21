@@ -81,16 +81,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ApplicationUT\ApplicationUT.cs" />
-    <Compile Include="ConnStringWrappers\IdentityNewsSiteDBWrapper.cs" />
+    <Compile Include="Abstract\BaseUtils.cs" />
     <Compile Include="ConnStringWrappers\NewsSiteDBWrapper.cs" />
     <Compile Include="DbSetupUT.cs" />
     <Compile Include="DataAccessAdapterUT.cs" />
     <Compile Include="Fakes\FakeLogger.cs" />
-    <Compile Include="ITestUtils.cs" />
+    <Compile Include="Abstract\ITestUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepositoriesUT\NewsRepositoryUT.cs" />
+    <Compile Include="RepositoriesUT\ArticleRepositoryUT.cs" />
     <Compile Include="RepositoriesUT\LikeRepositoryUT.cs" />
-    <Compile Include="IdentityUtils.cs" />
+    <Compile Include="LoggerUT.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

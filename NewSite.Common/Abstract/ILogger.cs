@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Common.Abstract
 {
-    public interface ILogger
+    public interface ISolutionLogger
     {
-        void LogError(Exception ex);
+        void LogError(Exception ex, string methodName = null);
 
-        void LogInfo(string message);
+        void LogInfo(string message, string methodName = null);
     }
 }

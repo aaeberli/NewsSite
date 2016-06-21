@@ -72,8 +72,8 @@
     <Compile Include="Model\AspNetUserClaim.cs" />
     <Compile Include="Model\AspNetUserLogin.cs" />
     <Compile Include="Model\Like.cs" />
-    <Compile Include="Model\News.cs" />
-    <Compile Include="Model\NewsStats.cs" />
+    <Compile Include="Model\Article.cs" />
+    <Compile Include="Model\ArticlesStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using NewsSite.Common.Abstract;
+using NewsSite.Test.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,120 +11,87 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Test
 {
-    internal class BaseUtils
+    internal class Utils : BaseUtils, ITestUtils<string>
     {
-        public static string TestPublisher { get { return "test_publisher"; } }
-        public static string TestEmployee { get { return "test_employee"; } }
-        public static string TestPublisherPass { get { return "test_employee_pass"; } }
-        public static string TestEmployeePass { get { return "test_employee_pass"; } }
 
-        public static string NewsTitle { get { return "test_news_title"; } }
-        public static string NewsBody { get { return "test_news_body"; } }
-
-        protected string _connStringName;
-
-        public BaseUtils(IConnStringWrapper wrapper)
+        public Utils(IConnStringWrapper wrapper)
+            : base(wrapper)
         {
             _connStringName = wrapper.ConnectionName;
         }
 
-        public void ExecuteNonQuery(string connString, string cmdText)
+        public int AddLike(int userId, int articleId)
         {
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                SqlCommand cmd = new SqlCommand(cmdText, conn);
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
+            throw new NotImplementedException();
         }
 
-        public object ExecuteScalar(string connString, string cmdText)
-        {
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                SqlCommand cmd = new SqlCommand(cmdText, conn);
-                conn.Open();
-                return cmd.ExecuteScalar();
-            }
-        }
-
-        public DataTable QueryTable(string cmdText)
-        {
-            string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                SqlCommand cmd = new SqlCommand(cmdText, conn);
-                conn.Open();
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataSet ds = new DataSet();
-                da.Fill(ds);
-                return ds.Tables[0];
-            }
-        }
-    }
-
-    internal class Utils : BaseUtils, ITestUtils<int>
-    {
-
-        public Utils(IConnStringWrapper wrapper)
-            :base(wrapper)
-        {
-
-        }
         /// <summary>
         /// Cleans DB for tests
         /// </summary>
-        public virtual void CleanTables()
+        public void CleanTables()
         {
             string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
             string cmdText_clear_like = "DELETE FROM [Like]";
-            string cmdText_clear_news = "DELETE FROM [News]";
-            string cmdText_clear_user = "DELETE FROM [User]";
-            string cmdText_clear_userType = "DELETE FROM [UserType]";
+            string cmdText_clear_article = "DELETE FROM [Articles]";
+            string cmdText_clear_user_roles = "DELETE FROM [AspNetUserRoles]";
+            string cmdText_clear_users = "DELETE FROM [AspNetUsers]";
+            string cmdText_clear_roles = "DELETE FROM [AspNetRoles]";
             ExecuteNonQuery(connString, cmdText_clear_like);
-            ExecuteNonQuery(connString, cmdText_clear_news);
-            ExecuteNonQuery(connString, cmdText_clear_user);
-            ExecuteNonQuery(connString, cmdText_clear_userType);
+            ExecuteNonQuery(connString, cmdText_clear_article);
+            ExecuteNonQuery(connString, cmdText_clear_user_roles);
+            ExecuteNonQuery(connString, cmdText_clear_users);
+            ExecuteNonQuery(connString, cmdText_clear_roles);
         }
 
         /// <summary>
         /// Create two default userd, one per type
         /// </summary>
-        public virtual Tuple<int, int> CreateUsers()
+
+        public Tuple<string, string> CreateUsers()
         {
             string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
-            string cmdText_restore_userType1 = "INSERT INTO [UserType] ([Type],[Description]) VALUES (1,'Publisher'); SELECT @@IDENTITY;";
-            string cmdText_restore_userType2 = "INSERT INTO [UserType] ([Type],[Description]) VALUES (2,'Employee'); SELECT @@IDENTITY;";
-            object publisherId = ExecuteScalar(connString, cmdText_restore_userType1);
-            object employeeId = ExecuteScalar(connString, cmdText_restore_userType2);
+            string cmdText_restore_employee_role = "INSERT INTO [AspNetRoles] ([Id],[Name]) VALUES ('b938a800-076f-42aa-aeb8-54fad97a3624','Employee')";
+            string cmdText_restore_publisher_role = "INSERT INTO [AspNetRoles] ([Id],[Name]) VALUES ('96a509fa-7233-4312-a0d4-c15a7896b365','Publisher')";
+            ExecuteNonQuery(connString, cmdText_restore_employee_role);
+            ExecuteNonQuery(connString, cmdText_restore_publisher_role);
 
-            string cmdText_restore_test_publisher_user = $"INSERT INTO [User] ([UserName],[Password],[CreatedDate],[TypeId]) VALUES ('{TestPublisher}','{TestPublisherPass}',GETDATE(),{publisherId}); SELECT @@IDENTITY;";
-            string cmdText_restore_test_employee_user = $"INSERT INTO [User] ([UserName],[Password],[CreatedDate],[TypeId]) VALUES ('{TestEmployee}','{TestEmployeePass}',GETDATE(),{employeeId}); SELECT @@IDENTITY;";
-            return new Tuple<int, int>(
-                    Convert.ToInt32(ExecuteScalar(connString, cmdText_restore_test_publisher_user)),
-                    Convert.ToInt32(ExecuteScalar(connString, cmdText_restore_test_employee_user))
-                );
+            /* Passwords
+             * 
+             * employee: Test_employee16
+             * publisher: Test_publisher16
+             * 
+             */
+            string cmdText_restore_test_employee_user = $"INSERT INTO [AspNetUsers] VALUES ('fc9c5c06-814a-4c30-a541-a76ba3465b6e','London','test_employee@articlesite.co.uk',0,'AMYnIA4EnbLVqvgEX7+dShc7hkAv4QCvI+nwP8LBKQQaEQqwqKndvnl6vNbnaQO0/A==','c176ec16-8277-4be4-886c-bb2d5ddeba93',NULL,0,0,NULL,1,0,'Mr. Employee')";
+            string cmdText_restore_test_publisher_user = $"INSERT INTO [AspNetUsers] VALUES ('a095d0a7-b38b-4827-97a9-36be9b91520d','London','test_publisher@articlesite.co.uk',0,'AMWMlyyvq4qoydtP/wsuKbTdnrxKmEfWHlgSbGlvxAVMuk+B4OBDj3SVKlSV2j69qQ==','bab4e758-e486-4286-80e0-2864066b4ab4',NULL,0,0,NULL,1,0,'Dr. Publisher')";
+            ExecuteNonQuery(connString, cmdText_restore_test_employee_user);
+            ExecuteNonQuery(connString, cmdText_restore_test_publisher_user);
+
+            string cmdText_restore_test_employee_user_role = $"INSERT INTO [AspNetUserRoles] VALUES ('fc9c5c06-814a-4c30-a541-a76ba3465b6e','b938a800-076f-42aa-aeb8-54fad97a3624')";
+            string cmdText_restore_test_publisher_user_role = $"INSERT INTO [AspNetUserRoles] VALUES ('a095d0a7-b38b-4827-97a9-36be9b91520d','96a509fa-7233-4312-a0d4-c15a7896b365')";
+            ExecuteNonQuery(connString, cmdText_restore_test_employee_user_role);
+            ExecuteNonQuery(connString, cmdText_restore_test_publisher_user_role);
+
+            return new Tuple<string, string>("fc9c5c06-814a-4c30-a541-a76ba3465b6e", "a095d0a7-b38b-4827-97a9-36be9b91520d");
         }
 
-        public virtual int CreateSingleNews(int authorId)
+        public virtual int CreateSingleArticle(string authorId)
         {
             string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
-            string cmdText_create_news = $"INSERT INTO [News] ([Title],[Body],[CreatedDate],[AuthorId]) VALUES ('{NewsTitle}','{NewsBody}',GETDATE(),{authorId}); SELECT @@IDENTITY;";
-            return Convert.ToInt32(ExecuteScalar(connString, cmdText_create_news));
+            string cmdText_create_article = $"INSERT INTO [Articles] ([Title],[Body],[CreatedDate],[AuthorId]) VALUES ('{ArticleTitle}','{ArticleBody}',GETDATE(),'{authorId}'); SELECT @@IDENTITY;";
+            return Convert.ToInt32(ExecuteScalar(connString, cmdText_create_article));
         }
 
-        public virtual int AddLike(int userId, int newsId)
+        public virtual int AddLike(string userId, int articleId)
         {
             string connString = ConfigurationManager.ConnectionStrings[_connStringName].ConnectionString;
 
-            string cmdText_create_like = $"INSERT INTO [Like] ([UserId],[NewsId],[CreatedDate]) VALUES ({userId},{newsId},GETDATE()); SELECT @@IDENTITY;";
+            string cmdText_create_like = $"INSERT INTO [Like] ([UserId],[ArticleId],[CreatedDate]) VALUES ('{userId}','{articleId}',GETDATE()); SELECT @@IDENTITY;";
             int likeId = Convert.ToInt32(ExecuteScalar(connString, cmdText_create_like));
             return likeId;
 
         }
-
     }
 }

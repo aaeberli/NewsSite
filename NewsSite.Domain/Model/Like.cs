@@ -12,7 +12,7 @@ namespace NewsSite.Domain.Model
     {
         public int Id { get; set; }
 
-        public int NewsId { get; set; }
+        public int ArticleId { get; set; }
 
         [Required]
         [StringLength(128)]
@@ -22,6 +22,6 @@ namespace NewsSite.Domain.Model
 
         public virtual AspNetUser AspNetUser { get; set; }
 
-        public virtual News News { get; set; }
+        public virtual Article Article { get; set; }
     }
 }

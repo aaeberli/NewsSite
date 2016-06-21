@@ -5,36 +5,52 @@ using NewsSite.Common.Abstract;
 using NewsSite.Domain.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NewsSite.Application
 {
-    // TODO: use postsharp for error handling
     public class NewsService : INewsService, IApplicationServiceWithRules<ApplicationRule>
     {
-        IRepository<News> _newsRepo;
+        IRepository<Article> _articleRepo;
         IRepository<AspNetUser> _userRepo;
         IRepository<Like> _likeRepo;
+        ISolutionLogger _logger;
 
-        public NewsService(IRepository<News> newsRepo, IRepository<AspNetUser> userRepo, IRepository<Like> likeRepo)
+        public NewsService(IRepository<Article> articleRepo, IRepository<AspNetUser> userRepo, IRepository<Like> likeRepo, ISolutionLogger logger)
         {
-            if (newsRepo == null) throw new NullReferenceException("IRepository<News> must be initialized");
+            if (articleRepo == null) throw new NullReferenceException("IRepository<Article> must be initialized");
             if (userRepo == null) throw new NullReferenceException("IRepository<AspNetUser> must be initialized");
             if (likeRepo == null) throw new NullReferenceException("IRepository<Like> must be initialized");
-            _newsRepo = newsRepo;
+            if (logger == null) throw new NullReferenceException("ILogger must be initialized");
+            _articleRepo = articleRepo;
             _userRepo = userRepo;
             _likeRepo = likeRepo;
+            _logger = logger;
+
+            AutoSave = true;
         }
 
         public bool AutoSave { get; set; }
 
-        public IList<ApplicationRule> ApplicationRules { get; private set; }
+        private IList<ApplicationRule> _ApplicationRules;
+        public IList<ApplicationRule> ApplicationRules
+        {
+            get
+            {
+                if (_ApplicationRules == null) _ApplicationRules = new List<ApplicationRule>();
+                return _ApplicationRules;
+            }
+            private set
+            {
+                _ApplicationRules = value;
+            }
+        }
 
         public void AddRule(ApplicationRule applicationRule)
         {
-            if (ApplicationRules == null) ApplicationRules = new List<ApplicationRule>();
             ApplicationRules.Add(applicationRule);
         }
 
@@ -48,30 +64,49 @@ namespace NewsSite.Application
             return ApplicationRules.Count(r => !r.Result) == 0;
         }
 
-
         private T Decorator<T>(Func<T> action, bool save = true)
         {
-            ResetRules();
-            T result = action.Invoke();
-            if (save && AutoSave && GetRulesStatus()) SaveChanges();
-            return result;
+            try
+            {
+                ResetRules();
+                T result = action.Invoke();
+                bool status = GetRulesStatus();
+                if (save && AutoSave && status) SaveChanges();
+                if (!status)
+                {
+                    StackTrace stackTrace = new StackTrace();
+                    string methodName = stackTrace.GetFrame(1).GetMethod().Name;
+                    foreach (var rule in ApplicationRules.Where(r => !r.Result))
+                    {
+                        _logger.LogInfo(rule.Reason.ToString(), methodName);
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                StackTrace stackTrace = new StackTrace();
+                string methodName = stackTrace.GetFrame(1).GetMethod().Name;
+                _logger.LogError(ex, methodName);
+                return default(T);
+            }
         }
 
-        public Like AddLike(AspNetUser user, News news)
+        public Like AddLike(AspNetUser user, Article article)
         {
             return Decorator(() =>
             {
                 ApplicationRule a = new ApplicationRule(this, _userRepo.SingleOrDefault(u => u.Id == user.Id) != null, ReasonEnum.NoUSer);
-                ApplicationRule b = new ApplicationRule(this, _newsRepo.SingleOrDefault(n => n.Id == news.Id) != null, ReasonEnum.NoNews);
+                ApplicationRule b = new ApplicationRule(this, _articleRepo.SingleOrDefault(art => art.Id == article.Id) != null, ReasonEnum.NoArticle);
                 int likesPerUser = _likeRepo.Read(l => l.UserId == user.Id).Count();
                 ApplicationRule c = new ApplicationRule(this, likesPerUser < Settings.Default.MaxLikes, ReasonEnum.MaxLikes);
-                ApplicationRule d = new ApplicationRule(this, _likeRepo.SingleOrDefault(l => l.UserId == user.Id && l.NewsId == news.Id) == null, ReasonEnum.AlreadyLiked);
+                ApplicationRule d = new ApplicationRule(this, _likeRepo.SingleOrDefault(l => l.UserId == user.Id && l.ArticleId == article.Id) == null, ReasonEnum.AlreadyLiked);
 
                 if (a & b & c & d)
                 {
                     Like like = _likeRepo.Create();
                     like.UserId = user.Id;
-                    like.NewsId = news.Id;
+                    like.ArticleId = article.Id;
                     like.CreatedDate = DateTime.Now;
                     _likeRepo.Add(like);
                     return like;
@@ -80,16 +115,16 @@ namespace NewsSite.Application
             });
         }
 
-        public Like RemoveLike(AspNetUser user, News news, Like like)
+        public Like RemoveLike(AspNetUser user, Article article, Like like)
         {
             return Decorator(() =>
             {
                 ApplicationRule a = new ApplicationRule(this, _userRepo.SingleOrDefault(u => u.Id == user.Id) != null, ReasonEnum.NoUSer);
-                ApplicationRule b = new ApplicationRule(this, _newsRepo.SingleOrDefault(n => n.Id == news.Id) != null, ReasonEnum.NoNews);
+                ApplicationRule b = new ApplicationRule(this, _articleRepo.SingleOrDefault(art => art.Id == article.Id) != null, ReasonEnum.NoArticle);
                 Like foundLike = _likeRepo.SingleOrDefault(l => l.Id == like.Id);
                 ApplicationRule c = new ApplicationRule(this, foundLike != null, ReasonEnum.NoLike);
                 ApplicationRule d = new ApplicationRule(this, foundLike?.UserId == user.Id, ReasonEnum.WrongUser);
-                ApplicationRule e = new ApplicationRule(this, foundLike?.NewsId == news.Id, ReasonEnum.WrongNews);
+                ApplicationRule e = new ApplicationRule(this, foundLike?.ArticleId == article.Id, ReasonEnum.WrongArticle);
 
                 if (a & b & c & d & e)
                 {
@@ -100,7 +135,7 @@ namespace NewsSite.Application
             });
         }
 
-        public IEnumerable<News> GetNewsList(AspNetUser user)
+        public IEnumerable<Article> GetArticlesList(AspNetUser user)
         {
             return Decorator(() =>
             {
@@ -109,110 +144,112 @@ namespace NewsSite.Application
 
                 if (a)
                 {
-                    return _newsRepo.Read();
+                    return _articleRepo.Read();
                 }
                 else return null;
             }, false);
         }
 
-        public News GetSingleNews(AspNetUser user, News news)
+        public Article GetSingleArticle(AspNetUser user, Article article)
         {
             return Decorator(() =>
             {
                 ApplicationRule a = new ApplicationRule(this, _userRepo.SingleOrDefault(u => u.Id == user.Id) != null, ReasonEnum.NoUSer);
                 if (_userRepo.SingleOrDefault(u => u.Id == user.Id) != null)
                 {
-                    return _newsRepo.SingleOrDefault(n => n.Id == news.Id);
+                    return _articleRepo.SingleOrDefault(n => n.Id == article.Id);
                 }
                 else return null;
             }, false);
         }
 
-        public News AddNews(AspNetUser user, News news)
+        public Article AddArticle(AspNetUser user, Article article)
         {
             return Decorator(() =>
             {
                 AspNetUser foundUser = _userRepo.SingleOrDefault(u => u.Id == user.Id);
                 ApplicationRule a = new ApplicationRule(this, foundUser != null, ReasonEnum.NoUSer);
                 ApplicationRule b = new ApplicationRule(this, foundUser.AspNetRoles.SingleOrDefault(r => r.Name == RoleType.Publisher.ToString()) != null, ReasonEnum.NoPublisher);
-                ApplicationRule c = new ApplicationRule(this, !news.Title.IsNullOrEmptyOrWhiteSpace(), ReasonEnum.EmptyTitle);
-                ApplicationRule d = new ApplicationRule(this, !news.Body.IsNullOrEmptyOrWhiteSpace(), ReasonEnum.EmptyBody);
+                ApplicationRule c = new ApplicationRule(this, !article.Title.IsNullOrEmptyOrWhiteSpace(), ReasonEnum.EmptyTitle);
+                ApplicationRule d = new ApplicationRule(this, !article.Body.IsNullOrEmptyOrWhiteSpace(), ReasonEnum.EmptyBody);
+                ApplicationRule e = new ApplicationRule(this, article.Title?.Length <= 50, ReasonEnum.TitleTooLong);
 
-                if (a & b & c & d)
+                if (a & b & c & d & e)
                 {
-                    News createdNews = _newsRepo.Create();
-                    createdNews.Title = news.Title;
-                    createdNews.Body = news.Body;
-                    createdNews.AuthorId = foundUser.Id;
-                    createdNews.CreatedDate = DateTime.Now;
-                    _newsRepo.Add(createdNews);
-                    return createdNews;
+                    Article createdArticle = _articleRepo.Create();
+                    createdArticle.Title = article.Title;
+                    createdArticle.Body = article.Body;
+                    createdArticle.AuthorId = foundUser.Id;
+                    createdArticle.CreatedDate = DateTime.Now;
+                    _articleRepo.Add(createdArticle);
+                    return createdArticle;
                 }
                 else return null;
             });
         }
 
-        public News RemoveNews(AspNetUser user, News news)
+        public Article RemoveArticle(AspNetUser user, Article article)
         {
             return Decorator(() =>
             {
                 AspNetUser foundUser = _userRepo.SingleOrDefault(u => u.Id == user.Id);
-                News foundNews = _newsRepo.SingleOrDefault(n => n.Id == news.Id);
+                Article foundArticle = _articleRepo.SingleOrDefault(art => art.Id == article.Id);
                 ApplicationRule a = new ApplicationRule(this, foundUser != null, ReasonEnum.NoUSer);
-                ApplicationRule b = new ApplicationRule(this, foundNews != null, ReasonEnum.NoNews);
-                ApplicationRule c = new ApplicationRule(this, foundNews.AspNetUser.Id == user.Id, ReasonEnum.WrongUser);
+                ApplicationRule b = new ApplicationRule(this, foundArticle != null, ReasonEnum.NoArticle);
+                ApplicationRule c = new ApplicationRule(this, foundArticle.AspNetUser.Id == user.Id, ReasonEnum.WrongUser);
 
                 if (a & b & c)
                 {
-                    News removedNews = _newsRepo.Remove(foundNews);
-                    return removedNews;
+                    Article removedArticle = _articleRepo.Remove(foundArticle);
+                    return removedArticle;
                 }
                 else return null;
             });
         }
 
-        public News EditNews(AspNetUser user, News news)
+        public Article EditArticle(AspNetUser user, Article article)
         {
             return Decorator(() =>
             {
                 AspNetUser foundUser = _userRepo.SingleOrDefault(u => u.Id == user.Id);
-                News foundNews = _newsRepo.SingleOrDefault(n => n.Id == news.Id);
+                Article foundArticle = _articleRepo.SingleOrDefault(art => art.Id == article.Id);
                 ApplicationRule a = new ApplicationRule(this, foundUser != null, ReasonEnum.NoUSer);
-                ApplicationRule b = new ApplicationRule(this, foundNews != null, ReasonEnum.NoNews);
-                ApplicationRule c = new ApplicationRule(this, foundNews.AspNetUser.Id == user.Id, ReasonEnum.WrongUser);
+                ApplicationRule b = new ApplicationRule(this, foundArticle != null, ReasonEnum.NoArticle);
+                ApplicationRule c = new ApplicationRule(this, foundArticle.AspNetUser.Id == user.Id, ReasonEnum.WrongUser);
 
                 if (a & b & c)
                 {
-                    foundNews.Title = news.Title.IsNullOrEmptyOrWhiteSpace() ? foundNews.Title : news.Title;
-                    foundNews.Body = news.Body.IsNullOrEmptyOrWhiteSpace() ? foundNews.Body : news.Body;
-                    foundNews.UpdatedDate = DateTime.Now;
-                    return foundNews;
+                    foundArticle.Title = article.Title.IsNullOrEmptyOrWhiteSpace() ? foundArticle.Title : article.Title;
+                    foundArticle.Body = article.Body.IsNullOrEmptyOrWhiteSpace() ? foundArticle.Body : article.Body;
+                    foundArticle.UpdatedDate = DateTime.Now;
+                    return foundArticle;
                 }
                 else return null;
             });
         }
 
-        public IEnumerable<NewsStats> GetTopTenNews()
+        public IEnumerable<ArticlesStats> GetTopTenArticles()
         {
             return Decorator(() =>
             {
-                IEnumerable<News> foundNewses = _newsRepo.Read();
+                IEnumerable<Article> foundArticles = _articleRepo.Read();
                 IEnumerable<Like> foundLikes = _likeRepo.Read();
-                var newsView = foundNewses.Select(n => new NewsStats() { Id = n.Id, Title = n.Title, Likes = n.Likes.Count() });
+                var artView = foundArticles.Select(art => new ArticlesStats() { Id = art.Id, Title = art.Title, Likes = art.Likes.Count() });
 
-                return newsView.OrderByDescending(n => n.Likes).Take(10);
+                return artView.OrderByDescending(art => art.Likes).Take(10);
             }, false);
         }
 
         public void Dispose()
         {
-            SaveChanges();
+            if (AutoSave) SaveChanges();
         }
 
         private void SaveChanges()
         {
-            // it's enough for one repo to act on dbContext and save changes
-            _newsRepo.SaveChanges();
+            _articleRepo.SaveChanges();
+            _likeRepo.SaveChanges();
+            _userRepo.SaveChanges();
         }
     }
 }

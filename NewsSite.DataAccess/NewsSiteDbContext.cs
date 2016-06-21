@@ -17,7 +17,7 @@ namespace NewsSite.Domain.Model
         public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
         public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
         public virtual DbSet<Like> Likes { get; set; }
-        public virtual DbSet<News> News { get; set; }
+        public virtual DbSet<Article> Articles { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -43,22 +43,22 @@ namespace NewsSite.Domain.Model
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<AspNetUser>()
-                .HasMany(e => e.News)
+                .HasMany(e => e.Articles)
                 .WithRequired(e => e.AspNetUser)
                 .HasForeignKey(e => e.AuthorId)
                 .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<News>()
+            modelBuilder.Entity<Article>()
                 .Property(e => e.Title)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<News>()
+            modelBuilder.Entity<Article>()
                 .Property(e => e.Body)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<News>()
+            modelBuilder.Entity<Article>()
                 .HasMany(e => e.Likes)
-                .WithRequired(e => e.News)
+                .WithRequired(e => e.Article)
                 .WillCascadeOnDelete(true);
         }
     }

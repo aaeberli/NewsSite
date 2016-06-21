@@ -10,6 +10,8 @@ using Microsoft.Owin.Security.OAuth;
 using Owin;
 using NewsSite.WebApplication.Models;
 using NewsSite.WebApplication.Providers;
+using System.Configuration;
+using NewsSite.WebApplication.Properties;
 
 namespace NewsSite.WebApplication
 {
@@ -55,7 +57,8 @@ namespace NewsSite.WebApplication
                     OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
                         validateInterval: TimeSpan.FromMinutes(20),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-                }
+                },
+                ExpireTimeSpan = TimeSpan.FromMinutes(Settings.Default.LoginExpiration),
             });
             // Use a cookie to temporarily store information about a user logging in with a third party login provider
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);

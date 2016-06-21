@@ -74,15 +74,6 @@
     <Compile Include="Repositories\LikeRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DB\NewsSiteDB.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DB\NewsSiteDB_log.ldf">
-      <DependentUpon>NewsSiteDB.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

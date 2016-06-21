@@ -10,6 +10,8 @@ using NewsSite.Domain.Model;
 using NewsSite.Application;
 using System.Collections.Generic;
 using NewsSite.Application.Abstract;
+using NewsSite.Test.Abstract;
+using NewsSite.Application.Infrastructure;
 
 namespace NewsSite.Test.ApplicationUT
 {
@@ -27,12 +29,13 @@ namespace NewsSite.Test.ApplicationUT
             container = new UnityContainer();
 
             container
-                .RegisterType<IConnStringWrapper, IdentityNewsSiteDBWrapper>()
+                .RegisterType<ISolutionLogger, ApplicationLogger>()
+                .RegisterType<IConnStringWrapper, NewsSiteDBWrapper>()
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
                 .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()
-                .RegisterType<IRepository<News>, NewsRepository>()
+                .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<Like>, LikeRepository>()
-                .RegisterType<ITestUtils<string>, IdentityUtils>()
+                .RegisterType<ITestUtils<string>, Utils>()
                 .RegisterType<INewsService, NewsService>();
 
             newsservice = container.Resolve<INewsService>();
@@ -41,42 +44,42 @@ namespace NewsSite.Test.ApplicationUT
         }
 
         [TestMethod]
-        public void Test_Application_shows_news_list()
+        public void Test_Application_shows_article_list()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            utils.AddLike(userIds.Item1, news2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            utils.AddLike(userIds.Item1, article2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
             // Act
-            IEnumerable<News> news = newsservice.GetNewsList(user);
+            IEnumerable<Article> article = newsservice.GetArticlesList(user);
             // Assert
-            Assert.IsNotNull(news);
-            Assert.AreEqual<int>(2, news.Count());
-            Assert.AreEqual<int>(1, news.Single(n => n.Id == news2).Likes.Count());
+            Assert.IsNotNull(article);
+            Assert.AreEqual<int>(2, article.Count());
+            Assert.AreEqual<int>(1, article.Single(n => n.Id == article2).Likes.Count());
         }
 
         [TestMethod]
-        public void Test_Application_get_single_news()
+        public void Test_Application_get_single_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            utils.AddLike(userIds.Item1, news2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            utils.AddLike(userIds.Item1, article2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = news2 };
+            Article article = new Article() { Id = article2 };
 
             // Act
-            News retrievedNews = newsservice.GetSingleNews(user, news);
+            Article retrievedArticle = newsservice.GetSingleArticle(user, article);
 
             // Assert
-            Assert.IsNotNull(retrievedNews);
-            Assert.AreEqual<int>(news.Id, retrievedNews.Id);
-            Assert.AreEqual<int>(1, retrievedNews.Likes.Count());
+            Assert.IsNotNull(retrievedArticle);
+            Assert.AreEqual<int>(article.Id, retrievedArticle.Id);
+            Assert.AreEqual<int>(1, retrievedArticle.Likes.Count());
         }
 
         [TestMethod]
@@ -85,18 +88,18 @@ namespace NewsSite.Test.ApplicationUT
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = news2 };
+            Article article = new Article() { Id = article2 };
 
             // Act
-            Like like = newsservice.AddLike(user, news);
+            Like like = newsservice.AddLike(user, article);
 
             // Assert
             Assert.IsNotNull(like);
             Assert.AreEqual<string>(userIds.Item1, like.AspNetUser.Id);
-            Assert.AreEqual<int>(news2, like.News.Id);
+            Assert.AreEqual<int>(article2, like.Article.Id);
         }
 
         [TestMethod]
@@ -105,22 +108,22 @@ namespace NewsSite.Test.ApplicationUT
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            int likeId = utils.AddLike(userIds.Item2, news1);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item2, article1);
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
-            News news = new News() { Id = news1 };
+            Article article = new Article() { Id = article1 };
             Like toRemove = new Like() { Id = likeId };
-            var repo = container.Resolve<IRepository<News>>();
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            Like like = newsservice.RemoveLike(user, news, toRemove);
-            var assertingNews = repo.SingleOrDefault(n => n.Id == news1);
+            Like like = newsservice.RemoveLike(user, article, toRemove);
+            var assertingArticle = repo.SingleOrDefault(n => n.Id == article1);
 
             // Assert
             Assert.IsNotNull(like);
-            Assert.IsNotNull(assertingNews);
-            Assert.AreEqual<int>(0, assertingNews.Likes.Count());
+            Assert.IsNotNull(assertingArticle);
+            Assert.AreEqual<int>(0, assertingArticle.Likes.Count());
         }
 
         [TestMethod]
@@ -129,46 +132,46 @@ namespace NewsSite.Test.ApplicationUT
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            int likeId = utils.AddLike(userIds.Item2, news1);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item2, article1);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = news1 };
+            Article article = new Article() { Id = article1 };
             Like toRemove = new Like() { Id = likeId };
-            var repo = container.Resolve<IRepository<News>>();
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            Like like = newsservice.RemoveLike(user, news, toRemove);
-            var assertingNews = repo.SingleOrDefault(n => n.Id == news1);
+            Like like = newsservice.RemoveLike(user, article, toRemove);
+            var assertingArticle = repo.SingleOrDefault(n => n.Id == article1);
 
             // Assert
             Assert.IsNull(like);
-            Assert.IsNotNull(assertingNews);
-            Assert.AreEqual<int>(1, assertingNews.Likes.Count());
+            Assert.IsNotNull(assertingArticle);
+            Assert.AreEqual<int>(1, assertingArticle.Likes.Count());
         }
 
         [TestMethod]
-        public void Test_Application_remove_like_wrong_news()
+        public void Test_Application_remove_like_wrong_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            int likeId = utils.AddLike(userIds.Item2, news1);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item2, article1);
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
-            News news = new News() { Id = news2 };
+            Article article = new Article() { Id = article2 };
             Like toRemove = new Like() { Id = likeId };
-            var repo = container.Resolve<IRepository<News>>();
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            Like like = newsservice.RemoveLike(user, news, toRemove);
-            var assertingNews = repo.SingleOrDefault(n => n.Id == news1);
+            Like like = newsservice.RemoveLike(user, article, toRemove);
+            var assertingArticle = repo.SingleOrDefault(n => n.Id == article1);
 
             // Assert
             Assert.IsNull(like);
-            Assert.IsNotNull(assertingNews);
-            Assert.AreEqual<int>(1, assertingNews.Likes.Count());
+            Assert.IsNotNull(assertingArticle);
+            Assert.AreEqual<int>(1, assertingArticle.Likes.Count());
         }
 
         [TestMethod]
@@ -177,23 +180,23 @@ namespace NewsSite.Test.ApplicationUT
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            List<int> newsIds = new List<int>();
+            List<int> articleIds = new List<int>();
             for (int i = 0; i < 15; i++)
             {
-                newsIds.Add(utils.CreateSingleNews(userIds.Item2));
+                articleIds.Add(utils.CreateSingleArticle(userIds.Item2));
 
             }
             for (int i = 0; i < 5; i++)
-                utils.AddLike(userIds.Item1, newsIds[i]);
+                utils.AddLike(userIds.Item1, articleIds[i]);
             for (int i = 0; i < 5; i++)
-                utils.AddLike(userIds.Item1, newsIds[i + 5]);
+                utils.AddLike(userIds.Item1, articleIds[i + 5]);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = newsIds[10] };
+            Article article = new Article() { Id = articleIds[10] };
             var repo = container.Resolve<IRepository<Like>>();
             int likesBefore = repo.Read().Count();
 
             // Act
-            Like like = newsservice.AddLike(user, news);
+            Like like = newsservice.AddLike(user, article);
             int likesAfter = repo.Read().Count();
             // Assert
             Assert.IsNull(like);
@@ -201,30 +204,30 @@ namespace NewsSite.Test.ApplicationUT
         }
 
         [TestMethod]
-        public void Test_Application_add_like_existing_like_and_user_and_news()
+        public void Test_Application_add_like_existing_like_and_user_and_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
-            int likeId = utils.AddLike(userIds.Item2, news1);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
+            int likeId = utils.AddLike(userIds.Item2, article1);
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
-            News news = new News() { Id = news1 };
-            var repo = container.Resolve<IRepository<News>>();
+            Article article = new Article() { Id = article1 };
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            Like like = newsservice.AddLike(user, news);
-            var assertingNews = repo.SingleOrDefault(n => n.Id == news1);
+            Like like = newsservice.AddLike(user, article);
+            var assertingArticle = repo.SingleOrDefault(n => n.Id == article1);
 
             // Assert
             Assert.IsNull(like);
-            Assert.IsNotNull(assertingNews);
-            Assert.AreEqual<int>(1, assertingNews.Likes.Count());
+            Assert.IsNotNull(assertingArticle);
+            Assert.AreEqual<int>(1, assertingArticle.Likes.Count());
         }
 
         [TestMethod]
-        public void Test_Application_add_news()
+        public void Test_Application_add_article()
         {
             // Arrange
             utils.CleanTables();
@@ -232,66 +235,88 @@ namespace NewsSite.Test.ApplicationUT
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
             string body = "test body";
             string title = "test title";
-            News news = new News()
+            Article article = new Article()
             {
                 Body = body,
                 Title = title,
             };
 
             // Act
-            News createdNews = newsservice.AddNews(user, news);
+            Article createdArticle = newsservice.AddArticle(user, article);
 
             // Assert
-            Assert.IsNotNull(createdNews);
-            Assert.AreEqual<string>(userIds.Item2, createdNews.AspNetUser.Id);
-            Assert.AreEqual<string>(title, createdNews.Title);
-            Assert.AreEqual<string>(body, createdNews.Body);
-            Assert.AreNotEqual<DateTime?>(null, createdNews.CreatedDate);
+            Assert.IsNotNull(createdArticle);
+            Assert.AreEqual<string>(userIds.Item2, createdArticle.AspNetUser.Id);
+            Assert.AreEqual<string>(title, createdArticle.Title);
+            Assert.AreEqual<string>(body, createdArticle.Body);
+            Assert.AreNotEqual<DateTime?>(null, createdArticle.CreatedDate);
         }
 
         [TestMethod]
-        public void Test_Application_add_news_no_title()
+        public void Test_Application_add_article_no_title()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
             string body = "test body";
-            News news = new News()
+            Article article = new Article()
             {
                 Body = body,
             };
 
             // Act
-            News createdNews = newsservice.AddNews(user, news);
+            Article createdArticle = newsservice.AddArticle(user, article);
 
             // Assert
-            Assert.IsNull(createdNews);
+            Assert.IsNull(createdArticle);
+        }
+
+        [TestMethod]
+        public void Test_Application_add_article_title_longer_than_50()
+        {
+            // Arrange
+            utils.CleanTables();
+            var userIds = utils.CreateUsers();
+            AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
+            string body = "test body";
+            string title = "abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij";
+            Article article = new Article()
+            {
+                Title = title,
+                Body = body,
+            };
+
+            // Act
+            Article createdArticle = newsservice.AddArticle(user, article);
+
+            // Assert
+            Assert.IsNull(createdArticle);
         }
 
 
         [TestMethod]
-        public void Test_Application_add_news_no_body()
+        public void Test_Application_add_article_no_body()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
             string title = "test title";
-            News news = new News()
+            Article article = new Article()
             {
                 Title = title,
             };
 
             // Act
-            News createdNews = newsservice.AddNews(user, news);
+            Article createdArticle = newsservice.AddArticle(user, article);
 
             // Assert
-            Assert.IsNull(createdNews);
+            Assert.IsNull(createdArticle);
         }
 
         [TestMethod]
-        public void Test_Application_add_news_no_publisher()
+        public void Test_Application_add_article_no_publisher()
         {
             // Arrange
             utils.CleanTables();
@@ -299,155 +324,155 @@ namespace NewsSite.Test.ApplicationUT
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
             string title = "test title";
             string body = "test body";
-            News news = new News()
+            Article article = new Article()
             {
                 Body = body,
                 Title = title,
             };
 
             // Act
-            News createdNews = newsservice.AddNews(user, news);
+            Article createdArticle = newsservice.AddArticle(user, article);
 
             // Assert
-            Assert.IsNull(createdNews);
+            Assert.IsNull(createdArticle);
         }
 
 
         [TestMethod]
-        public void Test_Application_remove_news()
+        public void Test_Application_remove_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
-            News news = new News() { Id = news2 };
-            var repo = container.Resolve<IRepository<News>>();
+            Article article = new Article() { Id = article2 };
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            News removedNews = newsservice.RemoveNews(user, news);
-            News assertingNews = repo.SingleOrDefault(n => n.Id == news2);
+            Article removedArticle = newsservice.RemoveArticle(user, article);
+            Article assertingArticle = repo.SingleOrDefault(n => n.Id == article2);
 
             // Assert
-            Assert.IsNotNull(removedNews);
-            Assert.IsNull(assertingNews);
+            Assert.IsNotNull(removedArticle);
+            Assert.IsNull(assertingArticle);
         }
 
 
         [TestMethod]
-        public void Test_Application_remove_news_bad_user()
+        public void Test_Application_remove_article_bad_user()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = news2 };
-            var repo = container.Resolve<IRepository<News>>();
+            Article article = new Article() { Id = article2 };
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            News removedNews = newsservice.RemoveNews(user, news);
-            News assertingNews = repo.SingleOrDefault(n => n.Id == news2);
+            Article removedArticle = newsservice.RemoveArticle(user, article);
+            Article assertingArticle = repo.SingleOrDefault(n => n.Id == article2);
 
             // Assert
-            Assert.IsNull(removedNews);
-            Assert.IsNotNull(assertingNews);
+            Assert.IsNull(removedArticle);
+            Assert.IsNotNull(assertingArticle);
         }
 
         [TestMethod]
-        public void Test_Application_edit_news()
+        public void Test_Application_edit_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
             string edited_title = "edited_title";
             string edited_body = "edited_body";
-            News news = new News()
+            Article article = new Article()
             {
-                Id = news2,
+                Id = article2,
                 Title = edited_title,
                 Body = edited_body,
             };
-            var repo = container.Resolve<IRepository<News>>();
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            News editedNews = newsservice.EditNews(user, news);
-            News assertingNews = repo.SingleOrDefault(n => n.Id == news2);
+            Article editedArticle = newsservice.EditArticle(user, article);
+            Article assertingArticle = repo.SingleOrDefault(n => n.Id == article2);
 
             // Assert
-            Assert.IsNotNull(editedNews);
-            Assert.AreEqual<string>(edited_title, assertingNews.Title);
-            Assert.AreEqual<string>(edited_body, assertingNews.Body);
-            Assert.AreEqual<string>(edited_title, editedNews.Title);
-            Assert.AreEqual<string>(edited_body, editedNews.Body);
-            Assert.AreNotEqual<DateTime?>(null, editedNews.UpdatedDate);
+            Assert.IsNotNull(editedArticle);
+            Assert.AreEqual<string>(edited_title, assertingArticle.Title);
+            Assert.AreEqual<string>(edited_body, assertingArticle.Body);
+            Assert.AreEqual<string>(edited_title, editedArticle.Title);
+            Assert.AreEqual<string>(edited_body, editedArticle.Body);
+            Assert.AreNotEqual<DateTime?>(null, editedArticle.UpdatedDate);
         }
 
         [TestMethod]
-        public void Test_Application_edit_news_bad_user()
+        public void Test_Application_edit_article_bad_user()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            int news1 = utils.CreateSingleNews(userIds.Item2);
-            int news2 = utils.CreateSingleNews(userIds.Item2);
+            int article1 = utils.CreateSingleArticle(userIds.Item2);
+            int article2 = utils.CreateSingleArticle(userIds.Item2);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
             string edited_title = "edited_title";
             string edited_body = "edited_body";
-            News news = new News()
+            Article article = new Article()
             {
-                Id = news2,
+                Id = article2,
                 Title = edited_title,
                 Body = edited_body,
             };
-            var repo = container.Resolve<IRepository<News>>();
+            var repo = container.Resolve<IRepository<Article>>();
 
             // Act
-            News editedNews = newsservice.EditNews(user, news);
-            News assertingNews = repo.SingleOrDefault(n => n.Id == news2);
+            Article editedArticle = newsservice.EditArticle(user, article);
+            Article assertingArticle = repo.SingleOrDefault(n => n.Id == article2);
 
             // Assert
-            Assert.IsNull(editedNews);
-            Assert.AreNotEqual<string>(edited_title, assertingNews.Title);
-            Assert.AreNotEqual<string>(edited_body, assertingNews.Body);
-            Assert.AreEqual<DateTime?>(null, assertingNews.UpdatedDate);
+            Assert.IsNull(editedArticle);
+            Assert.AreNotEqual<string>(edited_title, assertingArticle.Title);
+            Assert.AreNotEqual<string>(edited_body, assertingArticle.Body);
+            Assert.AreEqual<DateTime?>(null, assertingArticle.UpdatedDate);
         }
 
         [TestMethod]
-        public void Test_Application_get_topten_news()
+        public void Test_Application_get_topten_article()
         {
             // Arrange
             utils.CleanTables();
             var userIds = utils.CreateUsers();
-            List<int> newsIds = new List<int>();
+            List<int> articleIds = new List<int>();
             for (int i = 0; i < 15; i++)
             {
-                newsIds.Add(utils.CreateSingleNews(userIds.Item2));
+                articleIds.Add(utils.CreateSingleArticle(userIds.Item2));
 
             }
             for (int i = 0; i < 5; i++)
             {
-                utils.AddLike(userIds.Item1, newsIds[i]);
-                utils.AddLike(userIds.Item2, newsIds[i]);
+                utils.AddLike(userIds.Item1, articleIds[i]);
+                utils.AddLike(userIds.Item2, articleIds[i]);
             }
             for (int i = 0; i < 5; i++)
-                utils.AddLike(userIds.Item1, newsIds[i + 5]);
+                utils.AddLike(userIds.Item1, articleIds[i + 5]);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
-            News news = new News() { Id = newsIds[10] };
+            Article article = new Article() { Id = articleIds[10] };
             var repo = container.Resolve<IRepository<Like>>();
 
             // Act
-            IEnumerable<NewsStats> newses = newsservice.GetTopTenNews();
-            IEnumerable<NewsStats> first5newses = newses.Take(5);
+            IEnumerable<ArticlesStats> articlees = newsservice.GetTopTenArticles();
+            IEnumerable<ArticlesStats> first5articlees = articlees.Take(5);
             // Assert
-            Assert.IsTrue(newses.Count() <= 10);
+            Assert.IsTrue(articlees.Count() <= 10);
             for (int i = 0; i < 5; i++)
-                Assert.IsNotNull(first5newses.SingleOrDefault(n => (int)n.Id == newsIds[i]));
+                Assert.IsNotNull(first5articlees.SingleOrDefault(n => (int)n.Id == articleIds[i]));
         }
 
     }

@@ -4,14 +4,15 @@ using System.Diagnostics;
 
 namespace NewsSite.Test
 {
-    internal class FakeLogger : ILogger
+    internal class FakeLogger : ISolutionLogger
     {
-        public void LogError(Exception ex)
+
+        public void LogError(Exception ex, string methodName = null)
         {
             Debug.Write(ex.Message);
         }
 
-        public void LogInfo(string message)
+        public void LogInfo(string message, string methodName = null)
         {
             Debug.Write(message);
         }

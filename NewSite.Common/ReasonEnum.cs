@@ -12,13 +12,14 @@ namespace NewsSite.Common
         Error,
         MaxLikes,
         NoUSer,
-        NoNews,
+        NoArticle,
         NoPublisher,
         EmptyTitle,
         NoLike,
         WrongUser,
-        WrongNews,
+        WrongArticle,
         AlreadyLiked,
         EmptyBody,
+        TitleTooLong,
     }
 }

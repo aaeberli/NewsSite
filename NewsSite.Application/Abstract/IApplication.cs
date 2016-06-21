@@ -11,13 +11,13 @@ namespace NewsSite.Application.Abstract
     {
         bool AutoSave { get; set; }
 
-        IEnumerable<News> GetNewsList(AspNetUser user);
-        News GetSingleNews(AspNetUser user, News news);
-        Like AddLike(AspNetUser user, News news);
-        News AddNews(AspNetUser user, News news);
-        Like RemoveLike(AspNetUser user, News news, Like like);
-        News RemoveNews(AspNetUser user, News news);
-        News EditNews(AspNetUser user, News news);
-        IEnumerable<NewsStats> GetTopTenNews();
+        IEnumerable<Article> GetArticlesList(AspNetUser user);
+        Article GetSingleArticle(AspNetUser user, Article news);
+        Like AddLike(AspNetUser user, Article news);
+        Article AddArticle(AspNetUser user, Article news);
+        Like RemoveLike(AspNetUser user, Article news, Like like);
+        Article RemoveArticle(AspNetUser user, Article news);
+        Article EditArticle(AspNetUser user, Article news);
+        IEnumerable<ArticlesStats> GetTopTenArticles();
     }
 }

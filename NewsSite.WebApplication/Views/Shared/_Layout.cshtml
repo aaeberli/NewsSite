@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using NewsSite.Common;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title</title>
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="PRAGMA" content="NO-CACHE">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
@@ -17,12 +19,27 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("News Site", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "HelpPage" }, null)</li>
+                    @if (ViewBag.Role == RoleType.Publisher.ToString()|| ViewBag.Role == RoleType.Employee.ToString())
+                    {
+                        <li>@Html.ActionLink("Articles", "Index", "Article", new { area = "" }, null)</li>
+                    }
+                    @if (ViewBag.Role == RoleType.Publisher.ToString())
+                    {
+                        <li>
+                            @Html.ActionLink("My News", "MyList", "Article", new { area = "" }, null)
+                        </li>
+                        <li>
+                            @Html.ActionLink("Create Article", "CreateArticle", "Article", new { area = "" }, null)
+                        </li>
+                        <li>
+                            @Html.ActionLink("Stats", "Stats", "Article", new { area = "" }, null)
+                        </li>
+                    }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
@@ -31,9 +48,8 @@
     <div class="container body-content">
         @RenderBody()
         @RenderSection("SPAViews", required: false)
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        <footer class="col-md-12">
+           
         </footer>
     </div>
 

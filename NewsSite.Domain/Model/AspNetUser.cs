@@ -15,7 +15,7 @@ namespace NewsSite.Domain.Model
             AspNetUserClaims = new HashSet<AspNetUserClaim>();
             AspNetUserLogins = new HashSet<AspNetUserLogin>();
             Likes = new HashSet<Like>();
-            News = new HashSet<News>();
+            Articles = new HashSet<Article>();
             AspNetRoles = new HashSet<AspNetRole>();
         }
 
@@ -58,7 +58,7 @@ namespace NewsSite.Domain.Model
         public virtual ICollection<Like> Likes { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<News> News { get; set; }
+        public virtual ICollection<Article> Articles { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AspNetRole> AspNetRoles { get; set; }
