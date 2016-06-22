@@ -1,9 +1,9 @@
 ﻿<!-- ko with: home -->
 <div class="jumbotron">
-    <h1>New Site Demo</h1>
+    <h1>News Site</h1>
     <p class="lead">This is a news site demo.</p>
     <p class="lead">Please log in either as an employee user or a publisher</p>
-    <p>@Html.ActionLink($"View all the Articles  {HttpUtility.HtmlDecode("&raquo;")}", "Index", "Article", new { area = "" }, new { @class = "btn btn-primary btn-lg" })</p>
+    <p>@Html.ActionLink($"View all the Articles  {HttpUtility.HtmlDecode("&raquo;")}", "ArticleList", "Article", new { area = "" }, new { @class = "btn btn-primary btn-lg" })</p>
 
 </div>
 <div class="row">

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using NewsSite.Application.Abstract;
 using NewsSite.Test.Abstract;
 using NewsSite.Application.Infrastructure;
+using NewsSite.Common;
 
 namespace NewsSite.Test.ApplicationUT
 {
@@ -20,7 +21,7 @@ namespace NewsSite.Test.ApplicationUT
     {
         private ITestUtils<string> utils;
         private UnityContainer container;
-        private INewsService newsservice;
+        private INewsService<ApplicationRule> newsservice;
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,9 +37,9 @@ namespace NewsSite.Test.ApplicationUT
                 .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<Like>, LikeRepository>()
                 .RegisterType<ITestUtils<string>, Utils>()
-                .RegisterType<INewsService, NewsService>();
+                .RegisterType<INewsService<ApplicationRule>, NewsService>();
 
-            newsservice = container.Resolve<INewsService>();
+            newsservice = container.Resolve<INewsService<ApplicationRule>>();
             newsservice.AutoSave = true;
             utils = container.Resolve<ITestUtils<string>>();
         }

@@ -4,3 +4,4 @@
 19:20:07 AddArticle: EmptyTitle
 19:20:07 AddArticle: EmptyBody
 19:20:07 AddArticle: TitleTooLong
+17:33:26 EditArticle: WrongUser

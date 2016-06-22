@@ -27,8 +27,13 @@ namespace NewsSite.WebApplication.Models
 
         public string Author { get; set; }
 
-        public IEnumerable<string> Likers { get; set; }
+        public Dictionary<string, int> Likers { get; set; }
 
         public bool CurrentUserLike { get; set; }
+
+        public int CurrentUserLikeId { get; set; }
+
+        public string CurrentUserId { get; set; }
+
     }
 }

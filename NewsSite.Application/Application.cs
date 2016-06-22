@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Application
 {
-    public class NewsService : INewsService, IApplicationServiceWithRules<ApplicationRule>
+    public class NewsService : INewsService<ApplicationRule>, IApplicationServiceWithRules<ApplicationRule>
     {
         IRepository<Article> _articleRepo;
         IRepository<AspNetUser> _userRepo;

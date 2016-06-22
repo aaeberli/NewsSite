@@ -26,12 +26,12 @@
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
                     @if (ViewBag.Role == RoleType.Publisher.ToString()|| ViewBag.Role == RoleType.Employee.ToString())
                     {
-                        <li>@Html.ActionLink("Articles", "Index", "Article", new { area = "" }, null)</li>
+                        <li>@Html.ActionLink("Articles", "ArticleList", "Article", new { area = "" }, null)</li>
                     }
                     @if (ViewBag.Role == RoleType.Publisher.ToString())
                     {
                         <li>
-                            @Html.ActionLink("My News", "MyList", "Article", new { area = "" }, null)
+                            @Html.ActionLink("My News", "PersonalArticleList", "Article", new { area = "" }, null)
                         </li>
                         <li>
                             @Html.ActionLink("Create Article", "CreateArticle", "Article", new { area = "" }, null)

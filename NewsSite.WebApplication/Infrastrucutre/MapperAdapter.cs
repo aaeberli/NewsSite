@@ -17,9 +17,11 @@ namespace NewsSite.WebApplication.Infrastrucutre
             {
                 cfg.CreateMap<ArticleViewModel, Article>();
                 cfg.CreateMap<Article, ArticleViewModel>()
-                    .ForMember(dest => dest.Likers, opt => opt.MapFrom(source => source.Likes.Select(l => l.AspNetUser.Id)))
+                    .ForMember(dest => dest.Likers, opt => opt.MapFrom(source => source.Likes.ToDictionary(l => l.AspNetUser.Id, l => l.Id)))
+                    .ForMember(dest => dest.Author, opt => opt.MapFrom(source => source.AspNetUser.UserName))
                     .ForMember(dest => dest.CurrentUserLike, opt => opt.Ignore())
-                    .ForMember(dest => dest.Author, opt => opt.MapFrom(source => source.AspNetUser.UserName));
+                    .ForMember(dest => dest.CurrentUserLikeId, opt => opt.Ignore())
+                    .ForMember(dest => dest.CurrentUserId, opt => opt.Ignore());
             });
         }
 

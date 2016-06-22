@@ -9,6 +9,7 @@ using NewsSite.DataAccess;
 using NewsSite.Application;
 using NewsSite.WebApplication.Infrastrucutre;
 using NewsSite.Application.Infrastructure;
+using NewsSite.Common;
 
 namespace NewsSite.WebApplication.App_Start
 {
@@ -48,11 +49,11 @@ namespace NewsSite.WebApplication.App_Start
             container
                 .RegisterType<ISolutionLogger, ApplicationLogger>()
                 .RegisterType<IConnStringWrapper, WebConnStringWrapper>()
-                .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
+                .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerRequestLifetimeManager())
                 .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()
                 .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<Like>, LikeRepository>()
-                .RegisterType<INewsService, NewsService>()
+                .RegisterType<INewsService<ApplicationRule>, NewsService>()
                 .RegisterType<IMapperAdapter, MapperAdapter>(new ContainerControlledLifetimeManager());
         }
     }
