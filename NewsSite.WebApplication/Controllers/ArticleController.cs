@@ -159,7 +159,7 @@ namespace NewsSite.WebApplication.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Publisher")]
         public ActionResult RemoveArticle(int? articleId)
         {
             if (articleId != null)

@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.Application", "New
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsSite.WebApplication", "NewsSite.WebApplication\NewsSite.WebApplication.csproj", "{08003D4F-8A51-4FCB-BD51-C6A20EC8F276}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "NewsSite.Dababase", "NewsSite.Dababase\NewsSite.Dababase.sqlproj", "{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,11 @@ Global
 		{08003D4F-8A51-4FCB-BD51-C6A20EC8F276}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08003D4F-8A51-4FCB-BD51-C6A20EC8F276}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08003D4F-8A51-4FCB-BD51-C6A20EC8F276}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F62C96A8-BDA7-42DC-A3CC-3EAC5EA6AD50}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

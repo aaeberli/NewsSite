@@ -6,6 +6,9 @@ using System.Security.Principal;
 
 namespace NewsSite.WebApplication.Infrastrucutre
 {
+    /// <summary>
+    /// Standards implementation for IUserProvider
+    /// </summary>
     public class UserProvider : IUserProvider
     {
         private string userId;

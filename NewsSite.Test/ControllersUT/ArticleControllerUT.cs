@@ -34,6 +34,7 @@ namespace NewsSite.Test.ControllersUT
         [TestInitialize]
         public void Init()
         {
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
             container = new UnityContainer();
 
             container
@@ -45,7 +46,7 @@ namespace NewsSite.Test.ControllersUT
                 .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<Like>, LikeRepository>()
                 .RegisterType<INewsService<ApplicationRule>, NewsService>()
-                .RegisterType<ITestUtils<string>, Utils>()
+                .RegisterType<ITestUtils<string>, DbUtils>()
                 .RegisterType<IMapperAdapter, MapperAdapter>()
                 .RegisterType<Controller, MockArticleController>();
 

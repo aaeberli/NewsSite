@@ -13,7 +13,7 @@ namespace NewsSite.Test
     using NewsSite.DataAccess.Repositories;
     using NewsSite.Domain.Model;
     using System.Data;
-    using static Utils;
+    using static DbUtils;
 
     [TestClass]
     public class ArticleRepositoryUT
@@ -34,7 +34,7 @@ namespace NewsSite.Test
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
                 .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()
-                .RegisterType<ITestUtils<string>, Utils>();
+                .RegisterType<ITestUtils<string>, DbUtils>();
 
             utils = container.Resolve<ITestUtils<string>>();
 
@@ -52,8 +52,8 @@ namespace NewsSite.Test
             AspNetUser user = adapter.GetEntities<AspNetUser>().Single(u => u.Id == userIds.Item2);
             Article article = new Article()
             {
-                Title = Utils.ArticleTitle,
-                Body = Utils.ArticleBody,
+                Title = DbUtils.ArticleTitle,
+                Body = DbUtils.ArticleBody,
                 AspNetUser = user,
                 CreatedDate = DateTime.Now,
             };

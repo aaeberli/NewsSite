@@ -28,7 +28,7 @@ namespace NewsSite.Test
             container
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>()
                 .RegisterType<IConnStringWrapper, NewsSiteDBWrapper>()
-                .RegisterType<ITestUtils<string>, Utils>();
+                .RegisterType<ITestUtils<string>, DbUtils>();
 
             utils = container.Resolve<ITestUtils<string>>();
         }

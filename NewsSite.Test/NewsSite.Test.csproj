@@ -103,7 +103,7 @@
     <Compile Include="RepositoriesUT\ArticleRepositoryUT.cs" />
     <Compile Include="RepositoriesUT\LikeRepositoryUT.cs" />
     <Compile Include="LoggerUT.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="DbUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

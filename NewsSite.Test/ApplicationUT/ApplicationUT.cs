@@ -36,7 +36,7 @@ namespace NewsSite.Test.ApplicationUT
                 .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()
                 .RegisterType<IRepository<Article>, ArticleRepository>()
                 .RegisterType<IRepository<Like>, LikeRepository>()
-                .RegisterType<ITestUtils<string>, Utils>()
+                .RegisterType<ITestUtils<string>, DbUtils>()
                 .RegisterType<INewsService<ApplicationRule>, NewsService>();
 
             newsservice = container.Resolve<INewsService<ApplicationRule>>();

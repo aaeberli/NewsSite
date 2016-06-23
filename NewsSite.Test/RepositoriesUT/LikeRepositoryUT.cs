@@ -11,7 +11,7 @@ namespace NewsSite.Test
     using Abstract;
     using ConnStringWrappers;
     using System.Linq;
-    using static Utils;
+    using static DbUtils;
 
     [TestClass]
     public class LikeRepositoryUT
@@ -30,7 +30,7 @@ namespace NewsSite.Test
                 .RegisterType<IConnStringWrapper, NewsSiteDBWrapper>()
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerThreadLifetimeManager())
                 .RegisterType<IRepository<Like>, LikeRepository>()
-                .RegisterType<ITestUtils<string>, Utils>();
+                .RegisterType<ITestUtils<string>, DbUtils>();
 
             utils = container.Resolve<ITestUtils<string>>();
 
