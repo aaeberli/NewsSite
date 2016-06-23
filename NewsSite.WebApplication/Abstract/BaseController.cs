@@ -69,7 +69,6 @@ namespace NewsSite.WebApplication.Abstract
             _mapper = mapper;
             _logger = logger;
             _userProvider = userProvider;
-            _userProvider.Register(User, UserManager);
         }
 
     }

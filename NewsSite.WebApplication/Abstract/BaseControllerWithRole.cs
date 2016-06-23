@@ -27,6 +27,7 @@ namespace NewsSite.WebApplication.Abstract
         protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
         {
             var beginExecute = base.BeginExecute(requestContext, callback, state);
+            _userProvider.Register(User, UserManager);
             ViewBag.Role = GetRole();
             _user = new AspNetUser()
             {

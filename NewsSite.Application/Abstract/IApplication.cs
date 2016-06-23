@@ -75,10 +75,12 @@ namespace NewsSite.Application.Abstract
         /// <returns>The updated article</returns>
         Article EditArticle(AspNetUser user, Article article);
 
+
         /// <summary>
         /// Gets top ten articles by number of likes
         /// </summary>
+        /// <param name="user">Current user</param>
         /// <returns>an ad-hoc object with aggregated information</returns>
-        IEnumerable<ArticlesStats> GetTopTenArticles();
+        IEnumerable<ArticlesStats> GetTopTenArticles(AspNetUser user);
     }
 }

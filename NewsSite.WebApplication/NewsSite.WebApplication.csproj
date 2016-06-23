@@ -248,12 +248,14 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ArticleController.cs" />
+    <Compile Include="Controllers\StatsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastrucutre\MapperAdapter.cs" />
     <Compile Include="Infrastrucutre\UserProvider.cs" />
     <Compile Include="Infrastrucutre\WebConnStringWrapper.cs" />
+    <Compile Include="Models\ArticleStatsViewModel.cs" />
     <Compile Include="Models\ArticleViewModel.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -333,6 +335,7 @@
     <Content Include="Views\Article\CreateArticle.cshtml" />
     <Content Include="Views\Article\ViewArticle.cshtml" />
     <Content Include="Error.html" />
+    <Content Include="Views\Stats\GetStats.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NewSite.Common\NewsSite.Common.csproj">

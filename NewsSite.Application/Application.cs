@@ -241,15 +241,22 @@ namespace NewsSite.Application
             });
         }
 
-        public IEnumerable<ArticlesStats> GetTopTenArticles()
+        public IEnumerable<ArticlesStats> GetTopTenArticles(AspNetUser user)
         {
             return Decorator(() =>
             {
+                AspNetUser foundUser = _userRepo.SingleOrDefault(u => u.Id == user.Id);
                 IEnumerable<Article> foundArticles = _articleRepo.Read();
                 IEnumerable<Like> foundLikes = _likeRepo.Read();
-                var artView = foundArticles.Select(art => new ArticlesStats() { Id = art.Id, Title = art.Title, Likes = art.Likes.Count() });
+                ApplicationRule a = new ApplicationRule(this, foundUser != null, ReasonEnum.NoUSer);
+                ApplicationRule b = new ApplicationRule(this, foundUser.AspNetRoles.SingleOrDefault(r => r.Name == RoleType.Publisher.ToString()) != null, ReasonEnum.NoPublisher);
 
-                return artView.OrderByDescending(art => art.Likes).Take(10);
+                if (a & b)
+                {
+                    var artView = foundArticles.Select(art => new ArticlesStats() { Id = art.Id, Title = art.Title, Likes = art.Likes.Count() });
+                    return artView.OrderByDescending(art => art.Likes).Take(Settings.Default.MaxLikes);
+                }
+                else return null;
             }, false);
         }
 

@@ -31,5 +31,14 @@ namespace NewsSite.Application.Properties {
                 return ((int)(this["MaxLikes"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxStats {
+            get {
+                return ((int)(this["MaxStats"]));
+            }
+        }
     }
 }

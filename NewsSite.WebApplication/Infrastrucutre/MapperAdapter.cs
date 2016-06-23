@@ -28,6 +28,7 @@ namespace NewsSite.WebApplication.Infrastrucutre
                     .ForMember(dest => dest.CurrentUserLike, opt => opt.Ignore())
                     .ForMember(dest => dest.CurrentUserLikeId, opt => opt.Ignore())
                     .ForMember(dest => dest.CurrentUserId, opt => opt.Ignore());
+                cfg.CreateMap<ArticlesStats, ArticlesStatsViewModel>();
             });
         }
 

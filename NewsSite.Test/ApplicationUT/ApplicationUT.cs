@@ -463,19 +463,80 @@ namespace NewsSite.Test.ApplicationUT
             }
             for (int i = 0; i < 5; i++)
                 utils.AddLike(userIds.Item1, articleIds[i + 5]);
+            AspNetUser user = new AspNetUser() { Id = userIds.Item2 };
+            Article article = new Article() { Id = articleIds[10] };
+            var repo = container.Resolve<IRepository<Like>>();
+
+            // Act
+            IEnumerable<ArticlesStats> articles = newsservice.GetTopTenArticles(user);
+            IEnumerable<ArticlesStats> first5articles = articles.Take(5);
+
+            // Assert
+            Assert.IsTrue(articles.Count() <= 10);
+            for (int i = 0; i < 5; i++)
+                Assert.IsNotNull(first5articles.SingleOrDefault(n => (int)n.Id == articleIds[i]));
+        }
+
+        [TestMethod]
+        public void Test_Application_get_topten_article_bad_user()
+        {
+            // Arrange
+            utils.CleanTables();
+            var userIds = utils.CreateUsers();
+            List<int> articleIds = new List<int>();
+            for (int i = 0; i < 15; i++)
+            {
+                articleIds.Add(utils.CreateSingleArticle(userIds.Item2));
+
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                utils.AddLike(userIds.Item1, articleIds[i]);
+                utils.AddLike(userIds.Item2, articleIds[i]);
+            }
+            for (int i = 0; i < 5; i++)
+                utils.AddLike(userIds.Item1, articleIds[i + 5]);
+            string wrong_user = "wrong_user";
+            AspNetUser user = new AspNetUser() { Id = wrong_user };
+            Article article = new Article() { Id = articleIds[10] };
+            var repo = container.Resolve<IRepository<Like>>();
+
+            // Act
+            IEnumerable<ArticlesStats> articles = newsservice.GetTopTenArticles(user);
+
+            // Assert
+            Assert.IsNull(articles);
+        }
+
+        [TestMethod]
+        public void Test_Application_get_topten_article_no_publisher()
+        {
+            // Arrange
+            utils.CleanTables();
+            var userIds = utils.CreateUsers();
+            List<int> articleIds = new List<int>();
+            for (int i = 0; i < 15; i++)
+            {
+                articleIds.Add(utils.CreateSingleArticle(userIds.Item2));
+
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                utils.AddLike(userIds.Item1, articleIds[i]);
+                utils.AddLike(userIds.Item2, articleIds[i]);
+            }
+            for (int i = 0; i < 5; i++)
+                utils.AddLike(userIds.Item1, articleIds[i + 5]);
             AspNetUser user = new AspNetUser() { Id = userIds.Item1 };
             Article article = new Article() { Id = articleIds[10] };
             var repo = container.Resolve<IRepository<Like>>();
 
             // Act
-            IEnumerable<ArticlesStats> articlees = newsservice.GetTopTenArticles();
-            IEnumerable<ArticlesStats> first5articlees = articlees.Take(5);
-            // Assert
-            Assert.IsTrue(articlees.Count() <= 10);
-            for (int i = 0; i < 5; i++)
-                Assert.IsNotNull(first5articlees.SingleOrDefault(n => (int)n.Id == articleIds[i]));
-        }
+            IEnumerable<ArticlesStats> articles = newsservice.GetTopTenArticles(user);
 
+            // Assert
+            Assert.IsNull(articles);
+        }
     }
 
 }

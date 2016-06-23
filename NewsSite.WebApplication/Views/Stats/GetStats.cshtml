@@ -1,0 +1,19 @@
+﻿@model IEnumerable<NewsSite.WebApplication.Models.ArticlesStatsViewModel>
+
+@{
+    ViewBag.Title = "Top 10";
+}
+
+<h2>@ViewBag.Title</h2>
+<div class="list-group">
+    @foreach (var item in Model)
+    {
+        <a href="@Url.Action("ViewArticle", "Article", new { articleId = item.Id })" class="list-group-item">
+            <span>@item.Title</span>
+            <span class="glyphicon glyphicon-thumbs-up pull-right"></span>
+            <span class="pull-right">&nbsp;</span>
+            <span class="label label-default label-pill pull-right">@item.Likes</span>
+        </a>
+    }
+
+</div>

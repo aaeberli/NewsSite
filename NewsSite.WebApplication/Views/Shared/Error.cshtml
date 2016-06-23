@@ -3,9 +3,12 @@
 @model System.Web.Mvc.HandleErrorInfo
 @{
     ViewBag.Title = "Error";
-    (this.ViewContext.Controller as BaseController).Logger.LogInfo(Model.ControllerName);
-    (this.ViewContext.Controller as BaseController).Logger.LogInfo(Model.ActionName);
-    (this.ViewContext.Controller as BaseController).Logger.LogError(Model.Exception);
+    if (Model != null)
+    {
+        (this.ViewContext.Controller as BaseController).Logger.LogInfo(Model.ControllerName);
+        (this.ViewContext.Controller as BaseController).Logger.LogInfo(Model.ActionName);
+        (this.ViewContext.Controller as BaseController).Logger.LogError(Model.Exception);
+    }
 }
 
 <h1 class="text-danger">Error.</h1>

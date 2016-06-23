@@ -15,7 +15,8 @@ namespace NewsSite.WebApplication.Infrastrucutre
             where TUser : class, IUser<string>
         {
             userId = user.Identity.GetUserId();
-            roles = userManager.GetRoles(userId);
+            if (userId != null)
+                roles = userManager.GetRoles(userId);
         }
 
         public string GetUserId()
