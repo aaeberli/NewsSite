@@ -29,7 +29,7 @@ namespace NewsSite.Application.Infrastructure
                     config.AddTarget("file", fileTarget);
 
                     fileTarget.Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} ${message}";
-                    fileTarget.FileName = "${basedir}\\log.txt";
+                    fileTarget.FileName = "${basedir}\\Application.log";
 
                     var rule1 = new LoggingRule("*", LogLevel.Error, LogLevel.Error, fileTarget);
                     config.LoggingRules.Add(rule1);
