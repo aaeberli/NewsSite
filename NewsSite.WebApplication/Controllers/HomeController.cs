@@ -17,8 +17,8 @@ namespace NewsSite.WebApplication.Controllers
     [Authorize]
     public class HomeController : BaseControllerWithRole
     {
-        public HomeController(IMapperAdapter mapper)
-            : base(mapper)
+        public HomeController(IMapperAdapter mapper, ISolutionLogger logger, IUserProvider userProvider)
+            : base(mapper, logger, userProvider)
         {
 
         }

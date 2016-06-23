@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Common
 {
+    /// <summary>
+    /// Enumerates possible failures in checking Business Rules
+    /// </summary>
     public enum ReasonEnum
     {
         Generic,

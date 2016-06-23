@@ -5,3 +5,8 @@
 19:20:07 AddArticle: EmptyBody
 19:20:07 AddArticle: TitleTooLong
 17:33:26 EditArticle: WrongUser
+20:30:02 Object reference not set to an instance of an object.
+2016-06-22 20:33:24 Object reference not set to an instance of an object.
+2016-06-22 20:34:46 Article
+2016-06-22 20:34:46 ViewArticle
+2016-06-22 20:34:46 Object reference not set to an instance of an object.

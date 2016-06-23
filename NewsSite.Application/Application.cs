@@ -12,6 +12,11 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Application
 {
+
+    /// <summary>
+    /// Application Service
+    /// Implements INewsService and IApplicationServiceWithRules (see respective documentation)
+    /// </summary>
     public class NewsService : INewsService<ApplicationRule>, IApplicationServiceWithRules<ApplicationRule>
     {
         IRepository<Article> _articleRepo;
@@ -63,6 +68,14 @@ namespace NewsSite.Application
         {
             return ApplicationRules.Count(r => !r.Result) == 0;
         }
+
+        /// <summary>
+        /// Decorates each method to perform common tasks
+        /// </summary>
+        /// <typeparam name="T">Result type of the decorated function</typeparam>
+        /// <param name="action">A lambda expression representing the business logic</param>
+        /// <param name="save">Specifies if SaveChanges must be performed each time</param>
+        /// <returns>The object returned by the decorated function</returns>
 
         private T Decorator<T>(Func<T> action, bool save = true)
         {

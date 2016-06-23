@@ -14,6 +14,11 @@ namespace NewsSite.DataAccess.Repositories
 
         }
 
+        /// <summary>
+        /// Removes dependent elements before removing the parent
+        /// </summary>
+        /// <param name="entity">User to remove</param>
+        /// <returns>Removed user </returns>
         public override AspNetUser Remove(AspNetUser entity)
         {
             entity.Likes.Select(l => _dataAccessAdapter.Remove(l));

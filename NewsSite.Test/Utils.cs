@@ -11,6 +11,10 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Test
 {
+    /// <summary>
+    /// Utility class
+    /// Creates some basic data into the DB to support stateless tests
+    /// </summary>
     internal class Utils : BaseUtils, ITestUtils<string>
     {
 

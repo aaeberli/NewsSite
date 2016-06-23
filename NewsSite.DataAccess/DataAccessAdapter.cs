@@ -8,6 +8,9 @@ using System.Data.Entity.Validation;
 
 namespace NewsSite.DataAccess
 {
+    /// <summary>
+    /// Data access adapter for specific DbContext (NewsSiteDbContext)
+    /// </summary>
     public class DataAccessAdapter : IDataAccessAdapter
     {
         private NewsSiteDbContext _dbContext;

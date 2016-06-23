@@ -22,6 +22,7 @@
             @if (Model.AuthorId == Model.CurrentUserId)
             {
                 <a href="@Url.Action("EditArticle","Article",new { articleId = Model.Id })" class="btn btn-info" role="button">Edit</a>
+                <a href="@Url.Action("RemoveArticle","Article",new { articleId = Model.Id })" class="btn btn-info" role="button">Remove</a>
             }
             @if (!Model.CurrentUserLike)
             {

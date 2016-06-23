@@ -7,12 +7,12 @@ namespace NewsSite.WebApplication.Models
 
     public class ArticleViewModel
     {
-        [Required]
+        [Required(AllowEmptyStrings =false)]
         [StringLength(50, ErrorMessage = "The {0} must be maximum {1} characters long.")]
         [Display(Name = "Title")]
         public string Title { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Body")]
         public string Body { get; set; }
 

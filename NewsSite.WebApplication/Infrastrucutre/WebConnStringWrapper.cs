@@ -6,6 +6,9 @@ using System.Web;
 
 namespace NewsSite.WebApplication.Infrastrucutre
 {
+    /// <summary>
+    /// Local implementation of IConnStringWrapper
+    /// </summary>
     public class WebConnStringWrapper : IConnStringWrapper
     {
         public string ConnectionName

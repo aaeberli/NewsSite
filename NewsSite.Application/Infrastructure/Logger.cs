@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Application.Infrastructure
 {
+    /// <summary>
+    /// Application Logger using NLog
+    /// </summary>
     public class ApplicationLogger : ISolutionLogger
     {
         private static Logger __logger;
@@ -25,7 +28,7 @@ namespace NewsSite.Application.Infrastructure
                     var fileTarget = new FileTarget();
                     config.AddTarget("file", fileTarget);
 
-                    fileTarget.Layout = @"${date:format=HH\:mm\:ss} ${message}";
+                    fileTarget.Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} ${message}";
                     fileTarget.FileName = "${basedir}\\log.txt";
 
                     var rule1 = new LoggingRule("*", LogLevel.Error, LogLevel.Error, fileTarget);

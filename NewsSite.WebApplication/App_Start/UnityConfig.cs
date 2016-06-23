@@ -48,6 +48,8 @@ namespace NewsSite.WebApplication.App_Start
             // container.RegisterType<IProductRepository, ProductRepository>();
             container
                 .RegisterType<ISolutionLogger, ApplicationLogger>()
+                .RegisterType<IUserProvider, UserProvider>()
+                .RegisterType<ISolutionLogger, ApplicationLogger>()
                 .RegisterType<IConnStringWrapper, WebConnStringWrapper>()
                 .RegisterType<IDataAccessAdapter, DataAccessAdapter>(new PerRequestLifetimeManager())
                 .RegisterType<IRepository<AspNetUser>, AspNetUserRepository>()

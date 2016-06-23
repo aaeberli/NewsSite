@@ -5,7 +5,7 @@ namespace NewsSite.Test.Abstract
 {
     internal interface ITestUtils<T>
     {
-        int AddLike(T userId, int newsId);
+        int AddLike(T userId, int articleId);
         void CleanTables();
         int CreateSingleArticle(T authorId);
         Tuple<T, T> CreateUsers();

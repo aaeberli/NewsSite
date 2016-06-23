@@ -9,8 +9,14 @@ using System.Web;
 
 namespace NewsSite.WebApplication.Infrastrucutre
 {
+    /// <summary>
+    /// Mapper Adapter encapsulating Automapper
+    /// </summary>
     public class MapperAdapter : IMapperAdapter
     {
+        /// <summary>
+        /// MApping configuration
+        /// </summary>
         public MapperAdapter()
         {
             Mapper.Initialize(cfg =>
@@ -26,12 +32,18 @@ namespace NewsSite.WebApplication.Infrastrucutre
         }
 
         public TDestination Map<TSource, TDestination>(TSource source)
+            where TSource : class
+            where TDestination : class
         {
+            if (source == null) return null;
             return Mapper.Map<TSource, TDestination>(source);
         }
 
         public IEnumerable<TDestination> MapCollection<TSource, TDestination>(IEnumerable<TSource> source)
+            where TSource : class
+            where TDestination : class
         {
+            if (source == null) return null;
             return Mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source.ToList());
         }
     }

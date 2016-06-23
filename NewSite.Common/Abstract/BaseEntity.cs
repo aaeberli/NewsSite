@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NewsSite.Common.Abstract
 {
+    /// <summary>
+    /// Base class for every entity in NewsSite.Domain
+    /// </summary>
     public abstract class BaseEntity
     {
     }

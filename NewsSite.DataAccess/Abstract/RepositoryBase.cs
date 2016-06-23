@@ -6,6 +6,10 @@ using System.Linq.Expressions;
 
 namespace NewsSite.DataAccess.Abstract
 {
+    /// <summary>
+    /// Base repository class implementing IRepository
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
 
     public abstract class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
     {

@@ -14,6 +14,11 @@ namespace NewsSite.DataAccess.Repositories
 
         }
 
+        /// <summary>
+        /// Removes dependent elements before removing the parent
+        /// </summary>
+        /// <param name="entity">The Article to remove</param>
+        /// <returns>REmoved article</returns>
         public override Article Remove(Article entity)
         {
             entity.Likes.Select(l => _dataAccessAdapter.Remove(l));

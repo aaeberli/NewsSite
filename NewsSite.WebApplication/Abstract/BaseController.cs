@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+﻿using Microsoft.AspNet.Identity.Owin;
 using NewsSite.Common.Abstract;
 using NewsSite.Domain.Model;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace NewsSite.WebApplication.Abstract
 {
+    /// <summary>
+    /// Base class for controller including Logger and Authentication facilites
+    /// </summary>
     public abstract class BaseController : Controller
     {
         protected ApplicationSignInManager _signInManager;
@@ -18,12 +17,14 @@ namespace NewsSite.WebApplication.Abstract
         protected ApplicationRoleManager _roleManager;
         protected AspNetUser _user;
         protected IMapperAdapter _mapper;
+        protected ISolutionLogger _logger;
+        protected IUserProvider _userProvider;
 
         public ApplicationSignInManager SignInManager
         {
             get
             {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+                return _signInManager ?? HttpContext.GetOwinContext()?.Get<ApplicationSignInManager>();
             }
             private set
             {
@@ -34,7 +35,7 @@ namespace NewsSite.WebApplication.Abstract
         {
             get
             {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                return _userManager ?? HttpContext?.GetOwinContext()?.GetUserManager<ApplicationUserManager>();
             }
             private set
             {
@@ -45,18 +46,30 @@ namespace NewsSite.WebApplication.Abstract
         {
             get
             {
-                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
+                return _roleManager ?? HttpContext?.GetOwinContext()?.Get<ApplicationRoleManager>();
             }
             private set
             {
                 _roleManager = value;
             }
         }
+        public ISolutionLogger Logger
+        {
+            get
+            {
+                return _logger;
+            }
+        }
 
-        public BaseController(IMapperAdapter mapper)
+        public BaseController(IMapperAdapter mapper, ISolutionLogger logger, IUserProvider userProvider)
         {
             if (mapper == null) throw new NullReferenceException("IMapperAdapter not initialized");
+            if (logger == null) throw new NullReferenceException("ISolutionLogger not initialized");
+            if (userProvider == null) throw new NullReferenceException("IUserProvider not initialized");
             _mapper = mapper;
+            _logger = logger;
+            _userProvider = userProvider;
+            _userProvider.Register(User, UserManager);
         }
 
     }

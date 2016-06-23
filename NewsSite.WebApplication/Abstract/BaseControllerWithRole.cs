@@ -11,10 +11,14 @@ using System.Web.Routing;
 
 namespace NewsSite.WebApplication.Abstract
 {
+    /// <summary>
+    /// Enhances Base Controller with Role's facilities
+    /// </summary>
     public abstract class BaseControllerWithRole : BaseController
     {
 
-        public BaseControllerWithRole(IMapperAdapter mapper) : base(mapper)
+        public BaseControllerWithRole(IMapperAdapter mapper, ISolutionLogger logger, IUserProvider userProvider)
+            : base(mapper, logger, userProvider)
         {
             if (mapper == null) throw new NullReferenceException("IMapperAdapter not initialized");
             _mapper = mapper;
@@ -26,7 +30,7 @@ namespace NewsSite.WebApplication.Abstract
             ViewBag.Role = GetRole();
             _user = new AspNetUser()
             {
-                Id = User.Identity.GetUserId()
+                Id = _userProvider.GetUserId()
             };
             return beginExecute;
         }
@@ -37,7 +41,7 @@ namespace NewsSite.WebApplication.Abstract
             if (user != null)
             {
                 //_userManager.IsInRoleAsync(user.Id,RoleType.Employee.ToString());
-                var role = UserManager.GetRoles(user.Id).First();
+                var role = _userProvider.GetRoles().First();
                 return role;
             }
             else return string.Empty;

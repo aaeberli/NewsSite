@@ -14,12 +14,15 @@ using System.Web.Mvc;
 
 namespace NewsSite.WebApplication.Controllers
 {
+    /// <summary>
+    /// Controller containing all the logic to manage articles
+    /// </summary>
     public class ArticleController : BaseControllerWithRole
     {
         private INewsService<ApplicationRule> _newsService;
 
-        public ArticleController(INewsService<ApplicationRule> newsService, IMapperAdapter mapper)
-            : base(mapper)
+        public ArticleController(INewsService<ApplicationRule> newsService, IMapperAdapter mapper, ISolutionLogger logger, IUserProvider userProvider)
+            : base(mapper, logger, userProvider)
         {
             if (newsService == null) throw new NullReferenceException("INewsService not initialized");
             _newsService = newsService;
@@ -27,33 +30,37 @@ namespace NewsSite.WebApplication.Controllers
 
         [HttpGet]
         [Authorize]
-        public ActionResult ArticleList()
+        public ViewResult ArticleList()
         {
             IEnumerable<Article> articleList = _newsService.GetArticlesList(_user);
-            IEnumerable<ArticleViewModel> articleVM = _mapper.MapCollection<Article, ArticleViewModel>(articleList).AddCurrentUserInfo(_user);
+            IEnumerable<ArticleViewModel> articleVM = _mapper.MapCollection<Article, ArticleViewModel>(articleList)?.AddCurrentUserInfo(_user);
             return View("ArticleList", articleVM);
         }
 
         [HttpGet]
         [Authorize(Roles = "Publisher")]
-        public ActionResult PersonalArticleList()
+        public ViewResult PersonalArticleList()
         {
-            IEnumerable<Article> articleList = _newsService.GetArticlesList(_user).Where(a => a.AuthorId == _user.Id);
-            IEnumerable<ArticleViewModel> articleVM = _mapper.MapCollection<Article, ArticleViewModel>(articleList).AddCurrentUserInfo(_user);
+            IEnumerable<Article> articleList = _newsService.GetArticlesList(_user)?.Where(a => a.AuthorId == _user.Id);
+            IEnumerable<ArticleViewModel> articleVM = _mapper.MapCollection<Article, ArticleViewModel>(articleList)?.AddCurrentUserInfo(_user);
             return View("ArticleList", articleVM);
         }
 
         [HttpGet]
         [Authorize(Roles = "Publisher")]
-        public ActionResult EditArticle(int? articleId)
+        public ViewResult EditArticle(int? articleId)
         {
             if (articleId != null)
             {
                 ViewBag.ArticleAction = "EditArticle";
                 ViewBag.Title = "Edit";
                 Article article = _newsService.GetSingleArticle(_user, new Article { Id = (int)articleId });
-                ArticleViewModel articleVM = _mapper.Map<Article, ArticleViewModel>(article).AddCurrentUserInfo(_user);
-                return View("CreateArticle", articleVM);
+                if (article == null) return View("Error");
+                else
+                {
+                    ArticleViewModel articleVM = _mapper.Map<Article, ArticleViewModel>(article).AddCurrentUserInfo(_user);
+                    return View("CreateArticle", articleVM);
+                }
             }
             else return View("Error");
         }
@@ -76,7 +83,7 @@ namespace NewsSite.WebApplication.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Publisher")]
-        public ActionResult CreateArticle()
+        public ViewResult CreateArticle()
         {
             ViewBag.ArticleAction = "CreateArticle";
             ViewBag.Title = "Create";
@@ -96,18 +103,22 @@ namespace NewsSite.WebApplication.Controllers
                 if (createdArticle == null) return View("Error");
                 else return Redirect("ArticleList");
             }
-            else return View();
+            else return View("CreateArticle");
         }
 
         [HttpGet]
         [Authorize]
-        public ActionResult ViewArticle(int? articleId)
+        public ViewResult ViewArticle(int? articleId)
         {
             if (articleId != null)
             {
                 Article article = _newsService.GetSingleArticle(_user, new Article { Id = (int)articleId });
-                ArticleViewModel articleVM = _mapper.Map<Article, ArticleViewModel>(article).AddCurrentUserInfo(_user);
-                return View("ViewArticle", articleVM);
+                if (article == null) return View("Error");
+                else
+                {
+                    ArticleViewModel articleVM = _mapper.Map<Article, ArticleViewModel>(article).AddCurrentUserInfo(_user);
+                    return View("ViewArticle", articleVM);
+                }
             }
             else return View("Error");
         }
@@ -122,7 +133,7 @@ namespace NewsSite.WebApplication.Controllers
                 Like addedLike = _newsService.AddLike(_user, new Article { Id = (int)articleId });
                 if (addedLike == null)
                 {
-                    if (_newsService.ApplicationRules.Count(r => r.Reason == ReasonEnum.MaxLikes) != 0) ViewBag.MaxLike = true;
+                    if (_newsService.ApplicationRules.Count(r => !r.Result && r.Reason == ReasonEnum.MaxLikes) != 0) ViewBag.MaxLike = true;
                     else result = View("Error");
                 }
 
@@ -141,11 +152,23 @@ namespace NewsSite.WebApplication.Controllers
             {
                 Like removedLike = _newsService.RemoveLike(_user, new Article { Id = (int)articleId }, new Like { Id = (int)likeId });
                 if (removedLike == null) result = View("Error");
-
             }
             else result = View("Error");
 
             return result;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult RemoveArticle(int? articleId)
+        {
+            if (articleId != null)
+            {
+                Article article = _newsService.RemoveArticle(_user, new Article { Id = (int)articleId });
+                if (article == null) return View("Error");
+                return Redirect("ArticleList");
+            }
+            else return View("Error");
         }
     }
 }
